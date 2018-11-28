@@ -1,8 +1,13 @@
 
-    What is an ORF?
-    What is the relation between ORF and gene?
-    What are the limits of such an approach?
-    What are the principal tools computing ORFs ? In their documentation, what kind of algorithm are they using?
-    What are the principal parameters used in these tools?
+1    What is an ORF?
+2    What is the relation between ORF and gene?
+3    What are the limits of such an approach?
+4    What are the principal tools computing ORFs ? In their documentation, what kind of algorithm are they using?
+5    What are the principal parameters used in these tools?
 
-  
+
+1 An orf is an open reading frame, that means in genetics it is a part of a reading frame that has the ability to be translated.
+
+2 The ORF delimits a gene with staring codon and codon stop
+
+3 
