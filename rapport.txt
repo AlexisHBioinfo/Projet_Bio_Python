@@ -1,0 +1,8 @@
+
+    What is an ORF?
+    What is the relation between ORF and gene?
+    What are the limits of such an approach?
+    What are the principal tools computing ORFs ? In their documentation, what kind of algorithm are they using?
+    What are the principal parameters used in these tools?
+
+  
