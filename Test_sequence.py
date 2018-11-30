@@ -83,7 +83,10 @@ def isGene3(seq):
         if isCodonStart(seq,i) == True:
             for j in range(i,len(seq)-2,3):
                 if isCodonStop(seq,j) == True:
+                    print("===================== Frame :",i%3,"===================== \n")
+                    print("Length:",j-i,"pb")
                     print("Codon Start : "+oneWord(seq,i,3)+", Position : ",i,"; Codon Stop : "+oneWord(seq,j,3)+" position : ",j)
+                    break
     return False
 
 def openFasta(file):
