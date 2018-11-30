@@ -70,10 +70,28 @@ def isGene(seq): #return True if seq has start codon and stop codon modulo 3
                     return True
     return False
 
-def isGene3(seq): # return True if seq has start and stop codon
-    for i in range(len(seq)):
-        if isCodonStart(seq,i)==True:
-            for j in range(i,len(seq),3):
-                if isCodonStop(seq,j)==True:
-                    print ("True")
+# def isGene3(seq): # return True if seq has start and stop codon
+#     for i in range(len(seq)):
+#         if isCodonStart(seq,i)==True:
+#             for j in range(i,len(seq),3):
+#                 if isCodonStop(seq,j)==True:
+#                     print ("True")
+#     return False
+
+def isGene3(seq):
+    for i in range(len(seq)-2):
+        if isCodonStart(seq,i) == True:
+            for j in range(i,len(seq)-2,3):
+                if isCodonStop(seq,j) == True:
+                    print("Codon Start : "+oneWord(seq,i,3)+", Position : ",i,"; Codon Stop : "+oneWord(seq,j,3)+" position : ",j)
     return False
+
+def openFasta(file):
+    with open(file) as fasta:
+        data = fasta.read()
+        data = str.replace(data,"\n","")
+    return data
+
+if __name__=='__main__':
+    data = openFasta("sequence.fasta")
+    isGene3(data)
