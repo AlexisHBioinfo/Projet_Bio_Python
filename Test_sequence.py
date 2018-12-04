@@ -80,16 +80,16 @@ def isGene(seq): #return True if seq has start codon and stop codon modulo 3
 #                     print ("True")
 #     return False
 
-def isGene3(seq,version):
+def isGene3(seq,version,threshold=90):
     for i in range(len(seq)-2):
         if isCodonStart(seq,i) == True:
-            for j in range(i,len(seq)-2,3):
+            for j in range(i+threshold,len(seq)-2,3):
                 if isCodonStop(seq,j) == True:
-                    if j-i>=90 :
-                        print("=====================",version,": Frame :",i%3,"===================== ")
-                        print("Length:",j-i,"pb")
-                        print("Codon Start : "+oneWord(seq,i,3)+", Position : ",i,"; Codon Stop : "+oneWord(seq,j,3)+" position : ",j,"\n")
-                        break
+                    #if j-i>=threshold :
+                    print("=====================",version,": Frame :",i%3,"===================== ")
+                    print("Length:",j-i,"pb")
+                    print("Codon Start : "+oneWord(seq,i,3)+", Position : ",i,"; Codon Stop : "+oneWord(seq,j,3)+" position : ",j,"\n")
+                    break
     return False
 
 ######### WARNING ###########
@@ -135,10 +135,10 @@ def four_lectures(seq):
 if __name__=='__main__':
     data = openFasta("sequence.fasta")
     data_inv,data_comp,data_inv_comp=four_lectures(data)
-    writeFasta(data_inv_comp,"fasta_inv_comp.txt")
-    writeFasta(data_inv,"fasta_inv.txt")
-    writeFasta(data_comp,"fasta_comp.txt")
-    """isGene3(data,"5'-3'")
+    # writeFasta(data_inv_comp,"fasta_inv_comp.txt")
+    # writeFasta(data_inv,"fasta_inv.txt")
+    # writeFasta(data_comp,"fasta_comp.txt")
+    isGene3(data,"5'-3'")
     isGene3(data_inv,"3'-5'")
     isGene3(data_comp,"comp_5'-3'")
-    isGene3(data_inv_comp,"comp_3'-5'")"""
+    isGene3(data_inv_comp,"comp_3'-5'")
