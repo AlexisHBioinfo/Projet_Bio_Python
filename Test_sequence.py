@@ -1,9 +1,9 @@
 """
 22/11/2018
+ANDRE Charlotte
+CLAUDE Elsa
 HUCTEAU Alexis
 LAPORTE Antoine
-CLAUDE Elsa
-ANDRE Charlotte
 BioPython
 """
 
@@ -93,11 +93,14 @@ def isGene3(seq,version):
     return False
 
 ######### WARNING ###########
-#Ce serait bien de save les séquences inv, comp et comp inv dans un fasta ?
+#getGeneticCode(NCBI_ID) pour les biais de codon entre les espèces
+#findORF(seq, threshold,codeTable) = isGene3 mais prend en compte les biais de Codon
 
+
+#Ce serait bien de save les séquences inv, comp et comp inv dans un fasta ? DONE
 # -> Ajout des codons init' alternatifs
 # -> Suppression d'un codon stop (non présent dans le biais de codon)
-# -> Ajout Threshold (minimum length : 90pb)
+# -> Ajout Threshold (minimum length : 90pb) "various thresholds (No threshold, 90bp, 210bp, 300bp, 420bp, for example.)"
 #############################
 
 def openFasta(file):
@@ -132,10 +135,10 @@ def four_lectures(seq):
 if __name__=='__main__':
     data = openFasta("sequence.fasta")
     data_inv,data_comp,data_inv_comp=four_lectures(data)
+    writeFasta(data_inv_comp,"fasta_inv_comp.txt")
+    writeFasta(data_inv,"fasta_inv.txt")
+    writeFasta(data_comp,"fasta_comp.txt")
     """isGene3(data,"5'-3'")
     isGene3(data_inv,"3'-5'")
     isGene3(data_comp,"comp_5'-3'")
     isGene3(data_inv_comp,"comp_3'-5'")"""
-    writeFasta(data_inv_comp,"fasta_inv_comp.txt")
-    writeFasta(data_inv,"fasta_inv.txt")
-    writeFasta(data_comp,"fasta_comp.txt")
