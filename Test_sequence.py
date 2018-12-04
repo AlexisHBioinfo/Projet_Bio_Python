@@ -1,8 +1,10 @@
 """
 22/11/2018
-HUCTEAU
-Alexis
-BioPython Un peu plus loin avec Python (version déroulée)
+HUCTEAU Alexis
+LAPORTE Antoine
+CLAUDE Elsa
+ANDRE Charlotte
+BioPython
 """
 
 #2.2.1 Statistiques basiques
@@ -49,14 +51,14 @@ def countWord(seq,word): #return the number of word in the string seq
 
 def isCodonStart(seq,pos): #return True if the string seq has start codon
     codon=oneWord(seq,pos,3)
-    if codon=='ATG':
+    if codon in ('ATG','TTA','TTG','CTG','ATT','ATC','ATA','GTG'):
         return True
     else :
         return False
 
 def isCodonStop(seq,pos): #return True if seq has a stop codon
     codon=oneWord(seq,pos,3)
-    if codon=='TAA' or codon=='TAG' or codon=='TGA' :
+    if codon=='TAA' or codon=='TAG':
         return True
     else :
         return False
@@ -83,11 +85,20 @@ def isGene3(seq,version):
         if isCodonStart(seq,i) == True:
             for j in range(i,len(seq)-2,3):
                 if isCodonStop(seq,j) == True:
-                    print("=====================",version,": Frame :",i%3,"===================== ")
-                    print("Length:",j-i,"pb")
-                    print("Codon Start : "+oneWord(seq,i,3)+", Position : ",i,"; Codon Stop : "+oneWord(seq,j,3)+" position : ",j,"\n")
-                    break
+                    if j-i>=90 :
+                        print("=====================",version,": Frame :",i%3,"===================== ")
+                        print("Length:",j-i,"pb")
+                        print("Codon Start : "+oneWord(seq,i,3)+", Position : ",i,"; Codon Stop : "+oneWord(seq,j,3)+" position : ",j,"\n")
+                        break
     return False
+
+######### WARNING ###########
+#Ce serait bien de save les séquences inv, comp et comp inv dans un fasta ?
+
+# -> Ajout des codons init' alternatifs
+# -> Suppression d'un codon stop (non présent dans le biais de codon)
+# -> Ajout Threshold (minimum length : 90pb)
+#############################
 
 def openFasta(file):
     with open(file) as fasta:
