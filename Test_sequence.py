@@ -88,7 +88,7 @@ def isGene3(seq,version,threshold=90):
                     #if j-i>=threshold :
                     print("=====================",version,": Frame :",i%3,"===================== ")
                     print("Length:",j-i,"pb")
-                    print("Codon Start : "+oneWord(seq,i,3)+", Position : ",i,"; Codon Stop : "+oneWord(seq,j,3)+" position : ",j,"\n")
+                    print("Codon Start : "+oneWord(seq,i,3)+", Position : ",i+1,"; Codon Stop : "+oneWord(seq,j,3)+" position : ",j+1,"\n")
                     break
     return False
 
