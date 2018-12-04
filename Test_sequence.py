@@ -133,12 +133,14 @@ def four_lectures(seq):
     return seq_inv,seq_comp,seq_comp_inv
 
 if __name__=='__main__':
+    print ("Quelle valeur de threshold voulez-vous ? Entrez un nombre et tappez sur ENTREE pour valider votre choix. La valeur par défaut est de 90pb.")
+    threshold=int(input())
     data = openFasta("sequence.fasta")
     data_inv,data_comp,data_inv_comp=four_lectures(data)
     # writeFasta(data_inv_comp,"fasta_inv_comp.txt")
     # writeFasta(data_inv,"fasta_inv.txt")
     # writeFasta(data_comp,"fasta_comp.txt")
-    isGene3(data,"5'-3'")
-    isGene3(data_inv,"3'-5'")
-    isGene3(data_comp,"comp_5'-3'")
-    isGene3(data_inv_comp,"comp_3'-5'")
+    isGene3(data,"5'-3'",threshold)
+    isGene3(data_inv,"3'-5'",threshold)
+    isGene3(data_comp,"comp_5'-3'",threshold)
+    isGene3(data_inv_comp,"comp_3'-5'",threshold)
