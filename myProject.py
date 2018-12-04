@@ -120,6 +120,13 @@ def openFasta(file):
     return data
 
 def four_lectures(seq):
+    '''Cette fonction sert a inversé l'ordre de la séquence, obtenir la séquence complémentaire, et inversé l'ordre de la séquence complémentaire.
+
+    argument: seq: séquence Fasta utilisée
+
+    return: La fonction return les 4 séquences obtenues
+    '''
+
     a=''
     seq_inv=seq[::-1]
     seq_comp=''
@@ -139,7 +146,12 @@ def four_lectures(seq):
 
 def writeFasta(data,FICHIER):
     '''Cette fonction n'as pas d'utilité a proprement parlé dans l'éxécution du programme
-    elle sert à ecrire dans un fichier txt, les séquences obtenu à la fin de l'éxécution de four-lectures'''
+    elle sert à ecrire dans un fichier txt, les séquences obtenu à la fin de l'éxécution de la fonction four_lectures
+
+    argument: data:sequence fasta
+
+    '''
+
     fic=open(FICHIER, "w")
     for letter in data :
         fic.write(letter)
