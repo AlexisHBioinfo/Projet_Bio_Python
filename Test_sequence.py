@@ -106,6 +106,12 @@ def openFasta(file):
         data = str.replace(data,"\n","")
     return data
 
+def writeFasta(data,FICHIER):
+    fic=open(FICHIER, "w")
+    for letter in data :
+        fic.write(letter)
+    fic.close()
+
 def four_lectures(seq):
     a=''
     seq_inv=seq[::-1]
@@ -126,7 +132,10 @@ def four_lectures(seq):
 if __name__=='__main__':
     data = openFasta("sequence.fasta")
     data_inv,data_comp,data_inv_comp=four_lectures(data)
-    isGene3(data,"5'-3'")
+    """isGene3(data,"5'-3'")
     isGene3(data_inv,"3'-5'")
     isGene3(data_comp,"comp_5'-3'")
-    isGene3(data_inv_comp,"comp_3'-5'")
+    isGene3(data_inv_comp,"comp_3'-5'")"""
+    writeFasta(data_inv_comp,"fasta_inv_comp.txt")
+    writeFasta(data_inv,"fasta_inv.txt")
+    writeFasta(data_comp,"fasta_comp.txt")
