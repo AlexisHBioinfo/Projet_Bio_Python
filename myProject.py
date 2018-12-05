@@ -11,6 +11,16 @@ def table_genetic():
     dico={'TTT':'F','TTC':'F','TTA':'L','TTG':'L','TCT':'S','TCC':'S','TCA':'S','TCG':'S','TAT':'Y','TAC':'Y','TAA':'*','TAG':'*','TGT':'C','TGC':'C','TGA':'W','TGG':'W','CTT':'L','CTC':'L','CTA':'L','CTG':'L','CCT':'P','CCC':'P','CCA':'P','CCG':'P','CAC':'H','CAT':'H','CAA':'Q','CAG':'Q','CGT':'R','CGC':'R','CGA':'R','CGG':'R','ATT':'I','ATC':'I','ATA':'I','ATG':'M','ACT':'T','ACC':'T','ACA':'T','ACG':'T','AAT':'N','AAC':'N','AAA':'K','AAG':'K','AGT':'S','AGC':'S','AGA':'R','AGG':'R','GTT':'V','GTC':'V','GTA':'V','GTG':'V','GCT':'A','GCC':'A','GCA':'A','GCG':'A','GAT':'D','GAC':'D','GAA':'E','GAG':'E','GGT':'G','GGC':'G','GGA':'G','GGG':'G'}
     return dico
 
+def trad(seq,cadre):
+    seqprot = ""
+    for i in range(cadre,len(seq)-2,3):
+        codon = ""
+        prot = ""
+        codon+=seq[i]+seq[i+1]+seq[i+2]
+        prot+=dico_table[codon]
+        seqprot+=prot
+    return seqprot
+
 def openFasta(file):
     '''La fonction à pour objectif de récuperer le fichier Fasta présent dans le repertoire
     courant, elle le convertit en string, en enlevant les sauts de lignes et le stocke dans une variable
@@ -132,19 +142,21 @@ def isGene3(seq,version,threshold=90):
 
         return: La fonction ne retourne rien, mais elle print des informations
     '''
-    for k in range(3):
+    for k in range(1,4):
         listeGenes=[]
-        i=k+1
+        i=k-1
         while i <= (len(seq)-2):
-            if (i-1-k)%150 == 0:
-                print("Le programme en est à la position :",i, "frame :",i%3)
+            if (i+1-k)%150 == 0:
+                print("Le programme en est à la position :",i+1, "frame :",k)
             if isCodonStart(seq,i) == True:
                 for j in range(i,len(seq)-2,3):
                     if isCodonStop(seq,j) == True and j+3-i >= threshold:
-                        print("=====================",version,": Frame :",i%3,"===================== ")
+                        print("=====================",version,": Frame :",k,"===================== ")
                         print("Length:",j+3-i,"pb")
                         print("Codon Start : "+oneWord(seq,i,3)+", Position : ",i+1,"; Codon Stop : "+oneWord(seq,j,3)+" position : ",j+3,"\n")
-                        listeGenes.append(oneWord(seq,i,j+2-i))
+                        listeGenes.append("Codon Start : "+oneWord(seq,i,3)+", Position : "+str(i+1)+"; Codon Stop : "+oneWord(seq,j,3)+" position : "+str(j+3))
+                        listeGenes.append("Sequence nucleotidique : "+oneWord(seq,i,j+3-i))
+                        listeGenes.append("Sequence proteique : "+trad(oneWord(seq,i,j+3-i),0)+"\n")
                         i=j
                         break
                     elif isCodonStop(seq,j) == True and j+3-i < threshold:
@@ -153,17 +165,7 @@ def isGene3(seq,version,threshold=90):
         fichierGene=""
         for i in listeGenes:
             fichierGene+=i+"\n"
-        writeFasta(fichierGene,"cadre"+str(k+1)+".txt")
-
-def trad(seq,cadre):
-    seqprot = ""
-    for i in range(cadre,len(seq)-2,3):
-        codon = ""
-        prot = ""
-        codon+=seq[i]+seq[i+1]+seq[i+2]
-        prot+=dico_table[codon]
-        seqprot+=prot
-    return seqprot
+        writeFasta(fichierGene,"cadre"+str(k)+".txt")
 
 ######### WARNING ###########
 #getGeneticCode(NCBI_ID) pour les biais de codon entre les espèces
@@ -189,4 +191,4 @@ if __name__=='__main__':
     # writeFasta(data_inv,"fasta_inv.txt")
     # writeFasta(data_comp,"fasta_comp.txt")
     isGene3(data,"5'-3'",threshold)
-    isGene3(data_inv_comp,"comp_3'-5'",threshold)
+    # isGene3(data_inv_comp,"comp_3'-5'",threshold)
