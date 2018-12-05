@@ -142,21 +142,26 @@ def isGene3(seq,version,threshold=90):
 
         return: La fonction ne retourne rien, mais elle print des informations
     '''
+    dicORF={}
     for k in range(1,4):
+        dicORF[k]={}
         listeGenes=[]
         i=k-1
+        compteur=0
         while i <= (len(seq)-2):
             if (i+1-k)%150 == 0:
                 print("Le programme en est à la position :",i+1, "frame :",k)
             if isCodonStart(seq,i) == True:
                 for j in range(i,len(seq)-2,3):
                     if isCodonStop(seq,j) == True and j+3-i >= threshold:
+                        compteur+=1
                         print("=====================",version,": Frame :",k,"===================== ")
                         print("Length:",j+3-i,"pb")
                         print("Codon Start : "+oneWord(seq,i,3)+", Position : ",i+1,"; Codon Stop : "+oneWord(seq,j,3)+" position : ",j+3,"\n")
                         listeGenes.append("Codon Start : "+oneWord(seq,i,3)+", Position : "+str(i+1)+"; Codon Stop : "+oneWord(seq,j,3)+" position : "+str(j+3))
                         listeGenes.append("Sequence nucleotidique : "+oneWord(seq,i,j+3-i))
                         listeGenes.append("Sequence proteique : "+trad(oneWord(seq,i,j+3-i),0)+"\n")
+                        dicORF[k][compteur]={'Start':i+1,'Stop':j+3,'Taille':j+3-i,'Seq_Nucleo':oneWord(seq,i,j+3-i),'Seq_proteo':trad(oneWord(seq,i,j+3-i),0)}
                         i=j
                         break
                     elif isCodonStop(seq,j) == True and j+3-i < threshold:
