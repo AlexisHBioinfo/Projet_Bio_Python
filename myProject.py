@@ -129,22 +129,23 @@ def isGene3(seq,version,threshold=90):
 
         return: La fonction ne retourne rien, mais elle print des informations
     '''
-    i=0
-    while i <= (len(seq)-2):
-        if isCodonStart(seq,i) == True:
-            for j in range(i,len(seq)-2,3):
-                if isCodonStop(seq,j) == True and j+3-i >= threshold:
-                    print("=====================",version,": Frame :",i%3,"===================== ")
-                    print("Length:",j+3-i,"pb")
-                    print("Codon Start : "+oneWord(seq,i,3)+", Position : ",i+1,"; Codon Stop : "+oneWord(seq,j,3)+" position : ",j+3,"\n")
-                    # print(oneWord(seq,i,j+3-i))
-                    i=j
-                    break
-                elif isCodonStop(seq,j) == True and j+3-i < threshold:
-                    print(i)
-                    break
-
-        i+=1
+    for k in range(3):
+        i=k+1
+        while i <= (len(seq)-2):
+            if (i-1-k)%150 == 0:
+                print("Le programme en est à la position :",i, "frame :",i%3)
+            if isCodonStart(seq,i) == True:
+                for j in range(i,len(seq)-2,3):
+                    if isCodonStop(seq,j) == True and j+3-i >= threshold:
+                        print("=====================",version,": Frame :",i%3,"===================== ")
+                        print("Length:",j+3-i,"pb")
+                        print("Codon Start : "+oneWord(seq,i,3)+", Position : ",i+1,"; Codon Stop : "+oneWord(seq,j,3)+" position : ",j+3,"\n")
+                        # liste(oneWord(seq,i,j+3-i))
+                        i=j
+                        break
+                    elif isCodonStop(seq,j) == True and j+3-i < threshold:
+                        break
+            i+=3
 
 ######### WARNING ###########
 #getGeneticCode(NCBI_ID) pour les biais de codon entre les espèces
