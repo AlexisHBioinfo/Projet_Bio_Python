@@ -120,6 +120,12 @@ def openFasta(file):
     return data
 
 def four_lectures(seq):
+    '''Cette fonction sert a inversé l'ordre de la séquence, obtenir la séquence complémentaire, et inversé l'ordre de la séquence complémentaire.
+
+    argument: seq: séquence Fasta utilisée
+
+    return: La fonction return les 4 séquences obtenues
+    '''
     a=''
     seq_inv=seq[::-1]
     seq_comp=''
