@@ -129,15 +129,22 @@ def isGene3(seq,version,threshold=90):
 
         return: La fonction ne retourne rien, mais elle print des informations
     '''
-    for i in range(len(seq)-2):
+    i=0
+    while i <= (len(seq)-2):
         if isCodonStart(seq,i) == True:
-            for j in range(i+threshold,len(seq)-2,3):
-                if isCodonStop(seq,j) == True:
-                        print("=====================",version,": Frame :",i%3,"===================== ")
-                        print("Length:",j+3-i,"pb")
-                        print("Codon Start : "+oneWord(seq,i,3)+", Position : ",i+1,"; Codon Stop : "+oneWord(seq,j,3)+" position : ",j+1,"\n")
-                        # print(oneWord(seq,i,j+3-i))
-                        break
+            for j in range(i,len(seq)-2,3):
+                if isCodonStop(seq,j) == True and j+3-i >= threshold:
+                    print("=====================",version,": Frame :",i%3,"===================== ")
+                    print("Length:",j+3-i,"pb")
+                    print("Codon Start : "+oneWord(seq,i,3)+", Position : ",i+1,"; Codon Stop : "+oneWord(seq,j,3)+" position : ",j+3,"\n")
+                    # print(oneWord(seq,i,j+3-i))
+                    i=j
+                    break
+                elif isCodonStop(seq,j) == True and j+3-i < threshold:
+                    print(i)
+                    break
+
+        i+=1
 
 ######### WARNING ###########
 #getGeneticCode(NCBI_ID) pour les biais de codon entre les espèces
