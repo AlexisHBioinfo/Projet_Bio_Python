@@ -6,6 +6,7 @@ HUCTEAU Alexis
 LAPORTE Antoine
 BioPython
 """
+from statistics import mean
 
 def table_genetic():
     dico={'TTT':'F','TTC':'F','TTA':'L','TTG':'L','TCT':'S','TCC':'S','TCA':'S','TCG':'S','TAT':'Y','TAC':'Y','TAA':'*','TAG':'*','TGT':'C','TGC':'C','TGA':'W','TGG':'W','CTT':'L','CTC':'L','CTA':'L','CTG':'L','CCT':'P','CCC':'P','CCA':'P','CCG':'P','CAC':'H','CAT':'H','CAA':'Q','CAG':'Q','CGT':'R','CGC':'R','CGA':'R','CGG':'R','ATT':'I','ATC':'I','ATA':'I','ATG':'M','ACT':'T','ACC':'T','ACA':'T','ACG':'T','AAT':'N','AAC':'N','AAA':'K','AAG':'K','AGT':'S','AGC':'S','AGA':'R','AGG':'R','GTT':'V','GTC':'V','GTA':'V','GTG':'V','GCT':'A','GCC':'A','GCA':'A','GCG':'A','GAT':'D','GAC':'D','GAA':'E','GAG':'E','GGT':'G','GGC':'G','GGA':'G','GGG':'G'}
@@ -68,6 +69,17 @@ def four_lectures(seq):
         seq_comp += a
     seq_comp_inv=seq_comp[::-1]
     return seq_inv,seq_comp,seq_comp_inv
+
+def listelength(dico):
+    listelongueur=[]
+    for cadre in dico.keys():
+        listelongueur.append([])
+        for gene in dico[cadre].keys():
+            listelongueur[cadre-1].append(dico[cadre][gene]['Taille'])
+        print("La longueur moyenne du cadre",cadre,"est de ",mean(listelongueur[cadre-1]))
+    for i in range(1,4):
+        maxval=(max(dico[i].items(),key=lambda x:x[1]['Taille']))
+        print("Pour le cadre",i,"le gène",maxval[0],"a la taille maximale de",maxval[1]['Taille'])
 
 
 #2.2.1 Statistiques basiques
@@ -171,6 +183,7 @@ def isGene3(seq,version,threshold=90):
         for i in listeGenes:
             fichierGene+=i+"\n"
         writeFasta(fichierGene,"cadre"+str(k)+".txt")
+    return dicORF
 
 ######### WARNING ###########
 #getGeneticCode(NCBI_ID) pour les biais de codon entre les espèces
@@ -195,5 +208,9 @@ if __name__=='__main__':
     # writeFasta(data_inv_comp,"fasta_inv_comp.txt")
     # writeFasta(data_inv,"fasta_inv.txt")
     # writeFasta(data_comp,"fasta_comp.txt")
-    isGene3(data,"5'-3'",threshold)
-    # isGene3(data_inv_comp,"comp_3'-5'",threshold)
+    dicoForward = isGene3(data,"5'-3'",threshold)
+    print("---- Données sur le brin principal ----")
+    listelength(dicoForward)
+    dicoCompInv = isGene3(data_inv_comp,"comp_3'-5'",threshold)
+    print("---- Données en complémentaire inverse ----")
+    listelength(dicoCompInv)
