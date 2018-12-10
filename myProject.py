@@ -154,17 +154,22 @@ def isGene3(seq,version,threshold=90):
 
         return: La fonction ne retourne rien, mais elle print des informations
     '''
-    dicORF={}
+    dicORF = {}
     for k in range(1,4):
-        dicORF[k]={}
-        listeGenes=[]
-        i=k-1
-        compteur=0
-        while i <= (len(seq)-2):
+        dicORF[k] = {}
+        listeGenes = []
+        if fourchette == False:
+            i = k-1
+            lenSeq = len(seq)
+        else:
+            i = k-1+fork_basse
+            lenSeq = fork_haute
+        compteur = 0
+        while i <= (lenSeq-2):
             if (i+1-k)%150 == 0:
                 print("Le programme en est à la position :",i+1, "frame :",k)
             if isCodonStart(seq,i) == True:
-                for j in range(i,len(seq)-2,3):
+                for j in range(i,lenSeq-2,3):
                     if isCodonStop(seq,j) == True and j+3-i >= threshold:
                         compteur+=1
                         print("=====================",version,": Frame :",k,"===================== ")
@@ -197,10 +202,23 @@ def isGene3(seq,version,threshold=90):
 #############################
 
 if __name__=='__main__':
-    dico_table=table_genetic()
-    print ("Quelle valeur de threshold voulez-vous ? Entrez un nombre et tappez sur ENTREE pour valider votre choix. La valeur par défaut est de 90pb.")
-    threshold=int(input())
-    data = openFasta("new1.fasta")
+    dico_table = table_genetic()
+    #On récupère un seuil pour la taille minimale des gènes
+    try:
+        threshold = int(input("Quelle valeur de threshold voulez-vous ? Entrez un nombre et appuyez sur ENTREE pour valider votre choix. La valeur par défaut est de 90pb : "))
+    except ValueError:
+        threshold = 90
+    #On récupère une fourchette d'exécution du programme au cas où l'utilisateur souhaiterait cibler un endroit particulier
+    try:
+        fourchette = str(input("Entrez une fourchette de lecture du génome (deux nombres séparés par un espace) et appuyez sur ENTREE, par défaut le génome entier est analysé : "))
+        fork_basse = int(fourchette.split(" ")[0])
+        fork_haute = int(fourchette.split(" ")[1])
+        if fork_basse > fork_haute: #On vérifie que l'utilisateur de ne se soit pas trompé de sens dans l'entrée de la fourchette de lecture
+            fork_basse, fork_haute = fork_haute, fork_basse
+    except ValueError:
+        fourchette = False
+    #On ouvre le fichier contenant le gène d'intérêt
+    data = openFasta("sequence.fasta")
     # writeFasta(trad(data,0),"fasta_prot.txt")
     # writeFasta(trad(data,1),"fasta_prot1.txt")
     # writeFasta(trad(data,2),"fasta_prot2.txt")
