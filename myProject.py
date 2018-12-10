@@ -137,7 +137,7 @@ def isCodonStop(seq,pos): #return True if seq has a stop codon
     else :
         return False
 
-def isGene3(seq,version,threshold,fourchette):
+def isGene3(seq,version,threshold,fourchette,fork_basse,fork_haute):
     '''
     La fonction parcours la séquence sur sa longueur -2. Elle cherche alors en appellant la fonction isCodonStart
         si il y a présence d'un codon sans cadre de lecture spécifique. Si elle identifie un codon alors
@@ -162,12 +162,8 @@ def isGene3(seq,version,threshold,fourchette):
             i = k-1
             lenSeq = len(seq)
         else:
-            fork_basse = (int(fourchette.split(" ")[0])//3)*3
-            fork_haute = (int(fourchette.split(" ")[1])//3)*3
-            if fork_basse > fork_haute: #On vérifie que l'utilisateur de ne se soit pas trompé de sens dans l'entrée de la fourchette de lecture
-                fork_basse, fork_haute = fork_haute, fork_basse
-            lenSeq = fork_haute
             i = k-1+fork_basse
+            lenSeq = fork_haute
         compteur = 0
         while i <= (lenSeq-2):
             if (i+1-k)%150 == 0:
@@ -215,8 +211,14 @@ if __name__=='__main__':
     #On récupère une fourchette d'exécution du programme au cas où l'utilisateur souhaiterait cibler un endroit particulier
     try:
         fourchette = str(input("Entrez une fourchette de lecture du génome (deux nombres séparés par un espace) et appuyez sur ENTREE, par défaut le génome entier est analysé : "))
+        fork_basse = (int(fourchette.split(" ")[0])//3)*3
+        fork_haute = (int(fourchette.split(" ")[1])//3)*3
+        if fork_basse > fork_haute: #On vérifie que l'utilisateur ne se soit pas trompé de sens dans l'entrée de la fourchette de lecture
+            fork_basse, fork_haute = fork_haute, fork_basse
     except ValueError:
         fourchette = False
+        fork_basse = None
+        fork_haute = None
     #On ouvre le fichier contenant le gène d'intérêt
     data = openFasta("sequence.fasta")
     # writeFasta(trad(data,0),"fasta_prot.txt")
@@ -229,8 +231,8 @@ if __name__=='__main__':
     # writeFasta(data_inv_comp,"fasta_inv_comp.txt")
     # writeFasta(data_inv,"fasta_inv.txt")
     # writeFasta(data_comp,"fasta_comp.txt")
-    dicoForward = isGene3(data,"Forward",threshold,fourchette)
-    dicoBacward = isGene3(data_inv_comp,"Complémenaire Inverse",threshold,fourchette)
+    dicoForward = isGene3(data,"Forward",threshold,fourchette,fork_basse,fork_haute)
+    dicoBacward = isGene3(data_inv_comp,"Complémenaire Inverse",threshold,fourchette,fork_basse,fork_haute)
     print("---- Données sur le brin principal ----")
     listelength(dicoForward)
     dicoCompInv = isGene3(data_inv_comp,"comp_3'-5'")
