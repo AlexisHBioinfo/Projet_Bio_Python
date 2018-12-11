@@ -233,6 +233,99 @@ def isGene3(seq,version,threshold,fourchette,fork_basse,fork_haute):
         writeFasta(fichierGene,"cadre"+str(k)+".txt")
     return dicORF
 
+def menu():
+    choix1=''
+    dico_setup=False
+    fichier_setup=False
+    while choix1!="CSV" and choix1!="FASTA":
+        print("Que voulez vous faire ?\n       Tapez 'CSV' pour lire les résultats d'une précédente étude.\n       Tapez 'FASTA' pour importer une séquence dans le programme au format fasta.\n")
+        while True :
+            try :
+                choix1=str(input())
+                break
+            except :
+                print("truc")
+    if choix1=="CSV":
+        print("Quel fichier voulez-vous lire ?")
+        try :
+            FICHIER=str(input())
+        except ValueError:
+            FICHIER="truc.csv"
+        readCSV(FICHIER,";")
+        fichier_setup=True
+        dico_setup=True
+    elif choix1=="FASTA":
+        print("Quel fichier voulez-vous lire ?")
+        try :
+            FICHIER=str(input())
+        except ValueError :
+            FICHIER="sequence.fasta"
+        data = openFasta(FICHIER)
+        fichier_setup=True
+    print("Que voulez vous faire avec ces fichiers ?\n       Tapez 'AFFICHAGE' pour afficher la liste des orfs de votre fichier.\n       Tapez'LONGEST' pour afficher les orfs les plus longs pour chaque cadre de lecture.\n       Tapez 'LONG' pour afficher une portion des orfs les plus longs.\n       Tapez 'WRITE' pour enregistrer vos résultats dans un fichier.\n       Tapez 'FIND ORF' pour trouver les orfs de votre séquence.")
+    choix2=str(input())
+    if choix2=='AFFICHAGE':
+        while True:
+            if dico_setup==True :
+                getLengths(dicoForward)
+                break
+            elif fichier_setup==True :
+                print("Vous devez d'abord trouver les ORFs de votre fichier !")
+                try:
+                    threshold = int(input("Quelle valeur de threshold voulez-vous ? Entrez un nombre et appuyez sur ENTREE pour valider votre choix. La valeur par défaut est de 90pb : "))
+                except ValueError:
+                    threshold = 90
+                    #On récupère une fourchette d'exécution du programme au cas où l'utilisateur souhaiterait cibler un endroit particulier
+                try:
+                    fourchette = str(input("Entrez une fourchette de lecture du génome (deux nombres séparés par un espace) et appuyez sur ENTREE, par défaut le génome entier est analysé : "))
+                    fork_basse = (int(fourchette.split(" ")[0])//3)*3
+                    fork_haute = (int(fourchette.split(" ")[1])//3)*3
+                    if fork_basse > fork_haute: #On vérifie que l'utilisateur ne se soit pas trompé de sens dans l'entrée de la fourchette de lecture
+                        fork_basse, fork_haute = fork_haute, fork_basse
+                except ValueError:
+                    fourchette = False
+                    fork_basse = None
+                    fork_haute = None
+                dicoForward = isGene3(data,"Forward",threshold,fourchette,fork_basse,fork_haute)
+                dico_setup=True
+    elif choix2=='LONGEST':
+        if dico_setup==True :
+            print(getLongestORF(dicoForward))
+        elif fichier_setup==True :
+            choix2=='FIND ORF'
+    elif choix2=='LONG':
+        if dico_setup==True :
+            print("Quelle proportion des ORFs les plus longs souhaitez-vous (en %)? (De base 50%)")
+            try :
+                porcent=str(input())
+            except :
+                porcent=50
+            print(getTopLongestORF(dicoForward,porcent))
+        elif fichier_setup==True:
+            choix2=='FIND ORF'
+    elif choix2=='WRITE':
+        if dico_setup==True :
+            print("Quel est le nom du fichier sur lequel vous souhaitez enregistrer les données ?")
+            try :
+                FICHIER2=str(input())
+            except :
+                FICHIER2="truc2.csv"
+        elif fichier_setup==True :
+            choix2=='FIND ORF'
+    elif choix2=='FIND ORF':
+        if dico_setup==True :
+            print("Voulez vous changer de fichier à étudier ? (o/n)")
+            while True :
+                try :
+                    choix3=str(input())
+                    if choix3=="o" or choix3=="n" :
+                        break
+                except :
+                    break
+            if choix3=="o":
+                choix1=""
+
+
 ######### WARNING ###########
 #getGeneticCode(NCBI_ID) pour les biais de codon entre les espèces
 #findORF(seq, threshold,codeTable) = isGene3 mais prend en compte les biais de Codon
@@ -247,35 +340,21 @@ def isGene3(seq,version,threshold,fourchette,fork_basse,fork_haute):
 if __name__=='__main__':
     dico_table = table_genetic()
     #On récupère un seuil pour la taille minimale des gènes
-    try:
-        threshold = int(input("Quelle valeur de threshold voulez-vous ? Entrez un nombre et appuyez sur ENTREE pour valider votre choix. La valeur par défaut est de 90pb : "))
-    except ValueError:
-        threshold = 90
-    #On récupère une fourchette d'exécution du programme au cas où l'utilisateur souhaiterait cibler un endroit particulier
-    try:
-        fourchette = str(input("Entrez une fourchette de lecture du génome (deux nombres séparés par un espace) et appuyez sur ENTREE, par défaut le génome entier est analysé : "))
-        fork_basse = (int(fourchette.split(" ")[0])//3)*3
-        fork_haute = (int(fourchette.split(" ")[1])//3)*3
-        if fork_basse > fork_haute: #On vérifie que l'utilisateur ne se soit pas trompé de sens dans l'entrée de la fourchette de lecture
-            fork_basse, fork_haute = fork_haute, fork_basse
-    except ValueError:
-        fourchette = False
-        fork_basse = None
-        fork_haute = None
+    menu()
     #On ouvre le fichier contenant le gène d'intérêt
-    data = openFasta("sequence.fasta")
+    # data = openFasta("sequence.fasta")
     # writeFasta(trad(data,0),"fasta_prot.txt")
     # writeFasta(trad(data,1),"fasta_prot1.txt")
     # writeFasta(trad(data,2),"fasta_prot2.txt")
     # writeFasta(trad(data_inv_comp,0),"fasta_prot2.txt")
     # writeFasta(trad(data_inv_comp,1),"fasta_prot1.txt")
     # writeFasta(trad(data_inv_comp,2),"fasta_prot2.txt")
-    data_inv,data_comp,data_inv_comp=four_lectures(data)
+    # data_inv,data_comp,data_inv_comp=four_lectures(data)
     # writeFasta(data_inv_comp,"fasta_inv_comp.txt")
     # writeFasta(data_inv,"fasta_inv.txt")
     # writeFasta(data_comp,"fasta_comp.txt")
     #dicoForward = isGene3(data,"Forward",threshold,fourchette,fork_basse,fork_haute)
-    print("---- Données sur le brin principal ----")
+    # print("---- Données sur le brin principal ----")
     # print(getLengths(dicoForward))
     # print(getLongestORF(dicoForward)) #A REVOIR
     # print(getTopLongestORF(dicoForward,50))
@@ -284,4 +363,4 @@ if __name__=='__main__':
     # print("---- Données en complémentaire inverse ----")
     # # print(getLengths(dicoBackward))
     # print(getLongestORF(dicoBackward))
-    print(readCSV("prout.csv",";"))
+    # print(readCSV("prout.csv",";"))
