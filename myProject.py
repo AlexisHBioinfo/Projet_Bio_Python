@@ -9,10 +9,25 @@ BioPython
 from statistics import mean
 
 def table_genetic():
+    '''
+    La fonction créé un dictionnaire associant un codon en clé à sa traduction acide aminé en valeur
+
+        Return :
+                dictionnaire de la table génétique de Mycoplasma Genitallium
+    '''
     dico={'TTT':'F','TTC':'F','TTA':'L','TTG':'L','TCT':'S','TCC':'S','TCA':'S','TCG':'S','TAT':'Y','TAC':'Y','TAA':'*','TAG':'*','TGT':'C','TGC':'C','TGA':'W','TGG':'W','CTT':'L','CTC':'L','CTA':'L','CTG':'L','CCT':'P','CCC':'P','CCA':'P','CCG':'P','CAC':'H','CAT':'H','CAA':'Q','CAG':'Q','CGT':'R','CGC':'R','CGA':'R','CGG':'R','ATT':'I','ATC':'I','ATA':'I','ATG':'M','ACT':'T','ACC':'T','ACA':'T','ACG':'T','AAT':'N','AAC':'N','AAA':'K','AAG':'K','AGT':'S','AGC':'S','AGA':'R','AGG':'R','GTT':'V','GTC':'V','GTA':'V','GTG':'V','GCT':'A','GCC':'A','GCA':'A','GCG':'A','GAT':'D','GAC':'D','GAA':'E','GAG':'E','GGT':'G','GGC':'G','GGA':'G','GGG':'G'}
     return dico
 
 def trad(seq,cadre):
+    '''
+    La fonction prend une séquence et la traduit en acide aminé
+
+        argument:
+                seq:séquence Fasta utilisée
+                cadre:cadre de lecture sur lequel traduire la séquence (1,2 ou3)
+        Return:
+                la séquence traduite en format .fasta
+    '''
     seqprot = ""
     for i in range(cadre,len(seq)-2,3):
         codon = ""
@@ -23,12 +38,15 @@ def trad(seq,cadre):
     return seqprot
 
 def openFasta(file):
-    '''La fonction à pour objectif de récuperer le fichier Fasta présent dans le repertoire
-    courant, elle le convertit en string, en enlevant les sauts de lignes et le stocke dans une variable
+    '''
+    La fonction à pour objectif de récuperer le fichier Fasta présent dans le repertoire
+        courant, elle le convertit en string, en enlevant les sauts de lignes et le stocke dans une variable
 
-    argument: file: nom du fichier source
+            argument:
+                    file: nom du fichier source
 
-    return: La fonction retourne data, c'est la variable qui contient la séquence Fasta standardisée pour le programme.
+                    return:
+                    La fonction retourne data, c'est la variable qui contient la séquence Fasta standardisée pour le programme.
     '''
     with open(file) as fasta:
         data = fasta.readlines()
@@ -40,14 +58,22 @@ def openFasta(file):
     return datastr
 
 def writeFasta(data,FICHIER):
-    '''Cette fonction n'as pas d'utilité à proprement parler dans l'éxécution du programme
-    elle sert à écrire dans un fichier txt, les séquences obtenues à la fin de l'éxécution de four-lectures'''
+    '''
+    Cette fonction n'as pas d'utilité à proprement parler dans l'éxécution du programme
+        elle sert à écrire dans un fichier txt, les séquences obtenues à la fin de l'éxécution de four-lectures
+
+            argument:
+                    data:le dictionnaire où les valeurs sont placées et que vous voulez enregistrer
+    '''
     fic=open(FICHIER, "w")
     for letter in data :
         fic.write(letter)
     fic.close()
 
 def writeCSV(dictionary,filename,separator):
+    '''
+    A FINIR
+    '''
     listeCSV=[]
     for cadre in dictionary.keys():
         for orf in dictionary[cadre].keys():
@@ -59,6 +85,9 @@ def writeCSV(dictionary,filename,separator):
     fic.close()
 
 def readCSV(filename,separator):
+    '''
+    A FINIR
+    '''
     csvliste=[]
     with open(filename) as csv:
         data = csv.readlines()
@@ -67,15 +96,17 @@ def readCSV(filename,separator):
             print(csvliste[ligne])
     return csvliste
 
-def four_lectures(seq):
-    '''Cette fonction sert a inversé l'ordre de la séquence, obtenir la séquence complémentaire, et inversé l'ordre de la séquence complémentaire.
+def comp_reverse(seq):
+    '''
+    Cette fonction sert a inversé l'ordre de la séquence complémentaire.
 
-    argument: seq: séquence Fasta utilisée
+        argument:
+                seq: séquence Fasta utilisée
 
-    return: La fonction return les 4 séquences obtenues
+        return:
+                La fonction retourne la séquence reverse complémentaire
     '''
     a=''
-    seq_inv=seq[::-1]
     seq_comp=''
     for i in seq:
         if i =='A':
@@ -88,9 +119,18 @@ def four_lectures(seq):
             a='G'
         seq_comp += a
     seq_comp_inv=seq_comp[::-1]
-    return seq_inv,seq_comp,seq_comp_inv
+    return seq_comp_inv
 
 def getLengths(orflist):
+    '''
+    La fonction parcourt le dictionnaire et renvoit la taille des ORFs dans une liste pour chaque cadre de lecture.
+
+        argument:
+                    orflist:dictionnaire dans lequel se trouve les informations
+
+        Return:
+                    Une liste contenant les longueurs des ORFs
+    '''
     listelongueur=[]
     for cadre in orflist.keys():
         listelongueur.append([])
@@ -100,6 +140,16 @@ def getLengths(orflist):
     return listelongueur
 
 def getLongestORF(orflist):
+    '''
+    La fonction parcourt le dictionnaire et retourne les ORFs pour lesquels la taille est la plus importante
+        FONCTION DU DEMON
+
+            argument:
+                    orflist:dictionnaire dans lequel se trouve les informations
+
+            Return:
+                    Un truc bizarre
+    '''
     maxval = []
     for i in range(1,4):
         print(i)
@@ -111,6 +161,18 @@ def getLongestORF(orflist):
     return maxval
 
 def getTopLongestORF(orflist,value):
+    '''
+    La fonction récupère la liste des longueurs des ORFs, les trie, ne garde qu'un pourcentage des tailles les plus importantes puis
+        parcourt le dictionnaire contenant tous les ORFs et leurs caractéristiques et récupère les ORFs dont les tailles se trouvent dans
+        la liste prédédemment récupérée. La fonction retourne enfin la liste de ces ORFs
+
+            argument:
+                    orflist:dictionnaire dans lequel se trouve les informations
+                    value:pourcentage des ORFs les plus longs que l'on souhaite afficher
+
+            Return:
+                    Une liste contenant des strings dans lesquels sont notés les ORFs recherchés
+    '''
     longestLengths = []
     ListeLongestORFLength =[]
     lengths = getLengths(orflist)
@@ -131,12 +193,13 @@ def oneWord(seq,pos,wlen): #return a piece with a lenght = wlen of the string se
     '''
     La fonction sert à copier une séquence dans une liste à partir d'une position start et sur une longueur donnée
 
-        argument: wlen: longueur de la liste voulue
-        pos: position voulue de départ
-        seq:correspond a la séquence Fasta récupérer
+        argument:
+                    wlen: longueur de la liste voulue
+                    pos: position voulue de départ
+                    seq:correspond a la séquence Fasta récupérer
 
-        Return: la fonction retourne une liste appelée séquence contenant
-        la séquence nucléotidique débutant à la position strat souhaitée et d'une longueur wlen
+        Return:     la fonction retourne une liste appelée séquence contenant
+                    la séquence nucléotidique débutant à la position strat souhaitée et d'une longueur wlen
     '''
     a=0
     sequence=''
@@ -151,11 +214,13 @@ def isCodonStart(seq,pos): #return True if the string seq has start codon
     La fonction sert à identifier le codon start de la séquence, en parcourant la séquence de 1 en 1 et stock dans la variable
         codon une suite de 3 nucléotides.
 
-        argument: seq:séquence Fasta
-                pos: position de départ du codon de 3 nucléotides à tester
+        argument:
+                    seq:séquence Fasta
+                    pos: position de départ du codon de 3 nucléotides à tester
 
-        return: La fonction retourne True si en parcourant la séquence,
-        elle trouve un des codons start de la liste, sinon elle retourne False
+        return:
+                    La fonction retourne True si en parcourant la séquence,
+                    elle trouve un des codons start de la liste, sinon elle retourne False
     '''
     codon=oneWord(seq,pos,3)
     if codon in ('ATG','TTA','TTG','CTG','ATT','ATC','ATA','GTG'):
@@ -168,11 +233,13 @@ def isCodonStop(seq,pos): #return True if seq has a stop codon
     la fonction sert à identifier le codon stop de la séquence, en parcourant la séquence de 1 en 1 et stock
             dans la variable codon une suite de 3 nucléotides
 
-        argument: seq: Séquence fasta
-                pos:position de départ du codon de 3 nucléotides à tester
+        argument:
+                    seq: Séquence fasta
+                    pos:position de départ du codon de 3 nucléotides à tester
 
-        return: La fonction retourne True, si en parcourant la séquence
-        elle trouve un des deux codons Stop, sinon elle retourne False
+        return:
+                    La fonction retourne True, si en parcourant la séquence
+                    elle trouve un des deux codons Stop, sinon elle retourne False
     '''
     codon=oneWord(seq,pos,3)
     if codon=='TAA' or codon=='TAG':
@@ -182,20 +249,26 @@ def isCodonStop(seq,pos): #return True if seq has a stop codon
 
 def isGene3(seq,version,threshold,fourchette,fork_basse,fork_haute):
     '''
-    La fonction parcours la séquence sur sa longueur -2. Elle cherche alors en appellant la fonction isCodonStart
-        si il y a présence d'un codon sans cadre de lecture spécifique. Si elle identifie un codon alors
-        elle parcourt de 3 en 3 la séquence en commencant à la position i+threshold, qui correspond a la position
-        du codon start plus un seuil minimal d'ORF,par défaut cette valeur de threshold est de 90. Une fois cette distance atteinte,
-        la fonction va alors appeler isCodonStop afin d'identifier un codon stop dans l'ORF associé au codon start identifié, elle s'arrète au premier dès qu'elle en trouve un.
+    La fonction parcourt la séquence sur sa longueur -2. Elle cherche alors en appellant la fonction isCodonStart
+        si il y a présence d'un codon dans un premier cadre de lecture en parcourant de 3 en 3 la séquence. Si elle identifie un codon alors
+        elle va alors appeler isCodonStop afin d'identifier un codon stop dans l'ORF associé au codon start identifié, elle s'arrète au premier dès qu'elle en trouve un. Si la distance du codon stop avec
+        le codon start est inférieure au threshold, le programme repart du codon strat à la recherche d'un meilleur duo codon start/codon stop.
         Une fois un ORF déterminé, la fonction va print la version de la séquence étudiée (5' 3' ou complémentaire inversé),
         le cadre de lecture (0,1,2), la longueur j+2-i égale au début du codon start et à la fin du codon stop. De plus, elle print la suite nucléotidique du codon start et du codon stop
-        et leur position, sinon elle retourne False
+        et leur position. A la fin d'un cadre de lecture, elle reprend du début pour faire le deuxième cadre de lecture puis le troisième.
 
-        arguement: seq: séquence Fasta étudiée
+        arguement:
+                    seq: séquence Fasta étudiée
                     version: la version peut être 5'3' ou complementaire inversé
                     threshold: cela correspond à une longueur d'ORF minimal afin de limiter les faux positifs
+                    fourchette:
+                                True: la fonction analyse la séquence limitée par une fouchette supérieure et inférieure
+                                False: la fonction analyse toute la séquence
+                    fork_basse: limite inférieure
+                    fork_haute: limite supérieure
 
-        return: La fonction ne retourne rien, mais elle print des informations
+        return:
+                    La fonction retourne un dictionnaire dans lequel toutes les informations des ORFs trouvées est inscrit
     '''
     dicORF = {}
     for k in range(1,4):
@@ -233,10 +306,7 @@ def isGene3(seq,version,threshold,fourchette,fork_basse,fork_haute):
         writeFasta(fichierGene,"cadre"+str(k)+".txt")
     return dicORF
 
-def menu():
-    choix1=''
-    dico_setup=False
-    fichier_setup=False
+def menu(choix1,dico_setup,fichier_setup):
     while choix1!="CSV" and choix1!="FASTA":
         print("Que voulez vous faire ?\n       Tapez 'CSV' pour lire les résultats d'une précédente étude.\n       Tapez 'FASTA' pour importer une séquence dans le programme au format fasta.\n")
         while True :
@@ -262,7 +332,7 @@ def menu():
             FICHIER="sequence.fasta"
         data = openFasta(FICHIER)
         fichier_setup=True
-    print("Que voulez vous faire avec ces fichiers ?\n       Tapez 'AFFICHAGE' pour afficher la liste des orfs de votre fichier.\n       Tapez'LONGEST' pour afficher les orfs les plus longs pour chaque cadre de lecture.\n       Tapez 'LONG' pour afficher une portion des orfs les plus longs.\n       Tapez 'WRITE' pour enregistrer vos résultats dans un fichier.\n       Tapez 'FIND ORF' pour trouver les orfs de votre séquence.")
+    print("Que voulez vous faire avec ces fichiers ?\n       Tapez 'AFFICHAGE' pour afficher la liste des orfs de votre fichier.\n       Tapez 'LONGEST' pour afficher les orfs les plus longs pour chaque cadre de lecture.\n       Tapez 'LONG' pour afficher une portion des orfs les plus longs.\n       Tapez 'WRITE' pour enregistrer vos résultats dans un fichier.\n       Tapez 'FIND ORF' pour trouver les orfs de votre séquence.\n       Tapez 'EXIT' pour quitter le programme !")
     choix2=str(input())
     if choix2=='AFFICHAGE':
         while True:
@@ -271,28 +341,13 @@ def menu():
                 break
             elif fichier_setup==True :
                 print("Vous devez d'abord trouver les ORFs de votre fichier !")
-                try:
-                    threshold = int(input("Quelle valeur de threshold voulez-vous ? Entrez un nombre et appuyez sur ENTREE pour valider votre choix. La valeur par défaut est de 90pb : "))
-                except ValueError:
-                    threshold = 90
-                    #On récupère une fourchette d'exécution du programme au cas où l'utilisateur souhaiterait cibler un endroit particulier
-                try:
-                    fourchette = str(input("Entrez une fourchette de lecture du génome (deux nombres séparés par un espace) et appuyez sur ENTREE, par défaut le génome entier est analysé : "))
-                    fork_basse = (int(fourchette.split(" ")[0])//3)*3
-                    fork_haute = (int(fourchette.split(" ")[1])//3)*3
-                    if fork_basse > fork_haute: #On vérifie que l'utilisateur ne se soit pas trompé de sens dans l'entrée de la fourchette de lecture
-                        fork_basse, fork_haute = fork_haute, fork_basse
-                except ValueError:
-                    fourchette = False
-                    fork_basse = None
-                    fork_haute = None
-                dicoForward = isGene3(data,"Forward",threshold,fourchette,fork_basse,fork_haute)
-                dico_setup=True
+                choix2='FIND ORF'
     elif choix2=='LONGEST':
         if dico_setup==True :
             print(getLongestORF(dicoForward))
         elif fichier_setup==True :
-            choix2=='FIND ORF'
+            print("Vous devez d'abord trouver les ORFs de votre fichier !")
+            choix2='FIND ORF'
     elif choix2=='LONG':
         if dico_setup==True :
             print("Quelle proportion des ORFs les plus longs souhaitez-vous (en %)? (De base 50%)")
@@ -302,7 +357,8 @@ def menu():
                 porcent=50
             print(getTopLongestORF(dicoForward,porcent))
         elif fichier_setup==True:
-            choix2=='FIND ORF'
+            print("Vous devez d'abord trouver les ORFs de votre fichier !")
+            choix2='FIND ORF'
     elif choix2=='WRITE':
         if dico_setup==True :
             print("Quel est le nom du fichier sur lequel vous souhaitez enregistrer les données ?")
@@ -311,8 +367,9 @@ def menu():
             except :
                 FICHIER2="truc2.csv"
         elif fichier_setup==True :
-            choix2=='FIND ORF'
-    elif choix2=='FIND ORF':
+            print("Vous devez d'abord trouver les ORFs de votre fichier !")
+            choix2='FIND ORF'
+    if choix2=='FIND ORF':
         if dico_setup==True :
             print("Voulez vous changer de fichier à étudier ? (o/n)")
             while True :
@@ -324,6 +381,27 @@ def menu():
                     break
             if choix3=="o":
                 choix1=""
+        else :
+            try:
+                threshold = int(input("Quelle valeur de threshold voulez-vous ? Entrez un nombre et appuyez sur ENTREE pour valider votre choix. La valeur par défaut est de 90pb : "))
+            except ValueError:
+                threshold = 90
+                #On récupère une fourchette d'exécution du programme au cas où l'utilisateur souhaiterait cibler un endroit particulier
+            try:
+                fourchette = str(input("Entrez une fourchette de lecture du génome (deux nombres séparés par un espace) et appuyez sur ENTREE, par défaut le génome entier est analysé : "))
+                fork_basse = (int(fourchette.split(" ")[0])//3)*3
+                fork_haute = (int(fourchette.split(" ")[1])//3)*3
+                if fork_basse > fork_haute: #On vérifie que l'utilisateur ne se soit pas trompé de sens dans l'entrée de la fourchette de lecture
+                    fork_basse, fork_haute = fork_haute, fork_basse
+            except ValueError:
+                fourchette = False
+                fork_basse = None
+                fork_haute = None
+            dicoForward = isGene3(data,"Forward",threshold,fourchette,fork_basse,fork_haute)
+            dico_setup=True
+    elif choix2=='EXIT':
+        return False,choix1,dico_setup,fichier_setup
+    return True,choix1,dico_setup,fichier_setup
 
 
 ######### WARNING ###########
@@ -339,8 +417,13 @@ def menu():
 
 if __name__=='__main__':
     dico_table = table_genetic()
+    choix1=''
+    dico_setup=False
+    fichier_setup=False
+    go=True
     #On récupère un seuil pour la taille minimale des gènes
-    menu()
+    while go==True :
+        go,choix1,dico_setup,fichier_setup=menu(choix1,dico_setup,fichier_setup)
     #On ouvre le fichier contenant le gène d'intérêt
     # data = openFasta("sequence.fasta")
     # writeFasta(trad(data,0),"fasta_prot.txt")
@@ -349,7 +432,7 @@ if __name__=='__main__':
     # writeFasta(trad(data_inv_comp,0),"fasta_prot2.txt")
     # writeFasta(trad(data_inv_comp,1),"fasta_prot1.txt")
     # writeFasta(trad(data_inv_comp,2),"fasta_prot2.txt")
-    # data_inv,data_comp,data_inv_comp=four_lectures(data)
+    # data_inv,data_comp,data_inv_comp=comp_reverse(data)
     # writeFasta(data_inv_comp,"fasta_inv_comp.txt")
     # writeFasta(data_inv,"fasta_inv.txt")
     # writeFasta(data_comp,"fasta_comp.txt")
