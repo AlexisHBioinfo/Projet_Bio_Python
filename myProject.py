@@ -47,6 +47,26 @@ def writeFasta(data,FICHIER):
         fic.write(letter)
     fic.close()
 
+def writeCSV(dictionary,filename,separator):
+    listeCSV=[]
+    for cadre in dictionary.keys():
+        for orf in dictionary[cadre].keys():
+            id, start, stop = orf, dictionary[cadre][orf]['Start'], dictionary[cadre][orf]['Stop']
+            listeCSV.append("'cadre'"+str(cadre)+separator+"'id' :"+str(id)+separator+"'start'"+str(start)+separator+"'stop'"+str(stop)+"\n")
+    fic = open(filename,"w")
+    for ligne in range(len(listeCSV)):
+        fic.write(listeCSV[ligne])
+    fic.close()
+
+def readCSV(filename,separator):
+    csvliste=[]
+    with open(filename) as csv:
+        data = csv.readlines()
+        for ligne in range(len(data)):
+            csvliste.append(data[ligne])
+            print(csvliste[ligne])
+    return csvliste
+
 def four_lectures(seq):
     '''Cette fonction sert a inversé l'ordre de la séquence, obtenir la séquence complémentaire, et inversé l'ordre de la séquence complémentaire.
 
@@ -70,17 +90,40 @@ def four_lectures(seq):
     seq_comp_inv=seq_comp[::-1]
     return seq_inv,seq_comp,seq_comp_inv
 
-def listelength(dico):
+def getLengths(orflist):
     listelongueur=[]
-    for cadre in dico.keys():
+    for cadre in orflist.keys():
         listelongueur.append([])
-        for gene in dico[cadre].keys():
-            listelongueur[cadre-1].append(dico[cadre][gene]['Taille'])
-        print("La longueur moyenne du cadre",cadre,"est de ",mean(listelongueur[cadre-1]))
-    for i in range(1,4):
-        maxval=(max(dico[i].items(),key=lambda x:x[1]['Taille']))
-        print("Pour le cadre",i,"le gène",maxval[0],"a la taille maximale de",maxval[1]['Taille'])
+        for orf in orflist[cadre].keys():
+            listelongueur[cadre-1].append(orflist[cadre][orf]['Taille (pb)'])
+            print("Pour le cadre : "+str(cadre)+" l'orf numéro : "+str(orf)+" a une taille de : "+str(orflist[cadre][orf]['Taille (pb)'])+"pb")
+    return listelongueur
 
+def getLongestORF(orflist):
+    maxval = []
+    for i in range(1,4):
+        print(i)
+        try:
+            maxval.append(max(orflist[i].items(),key=lambda x:x[1]['Taille (pb)']))
+            print("Pour le cadre",i,"l'ORF",maxval[0],"a la taille maximale de",maxval[1]['Taille (pb)'])
+        except ValueError:
+            print("Pas de données pour le cadre",i)
+    return maxval
+
+def getTopLongestORF(orflist,value):
+    longestLengths = []
+    ListeLongestORFLength =[]
+    lengths = getLengths(orflist)
+    for i in range (3):
+        lengths[i].sort()
+        compteur = int((value / 100) * len(lengths[i]))
+        for j in range(1,compteur+1):
+            longestLengths.append(lengths[i][-j])
+    for cadre in orflist.keys():
+        for orf in orflist[cadre].keys():
+            if orflist[cadre][orf]['Taille (pb)'] in longestLengths:
+                ListeLongestORFLength.append("Pour le cadre : "+str(cadre)+" l'orf numéro : "+str(orf)+" fait parti des "+str(value)+"% orf les plus grands, avec une taille de : "+str(orflist[cadre][orf]['Taille (pb)'])+"pb")
+    return ListeLongestORFLength
 
 #2.2.1 Statistiques basiques
 
@@ -178,7 +221,7 @@ def isGene3(seq,version,threshold,fourchette,fork_basse,fork_haute):
                         listeGenes.append("Codon Start : "+oneWord(seq,i,3)+", Position : "+str(i+1)+"; Codon Stop : "+oneWord(seq,j,3)+" position : "+str(j+3))
                         listeGenes.append("Sequence nucleotidique : "+oneWord(seq,i,j+3-i))
                         listeGenes.append("Sequence proteique : "+trad(oneWord(seq,i,j+3-i),0)+"\n")
-                        dicORF[k][compteur]={'Start':i+1,'Stop':j+3,'Taille':j+3-i,'Seq_Nucleo':oneWord(seq,i,j+3-i),'Seq_proteo':trad(oneWord(seq,i,j+3-i),0)}
+                        dicORF[k][compteur]={'Start':i+1,'Stop':j+3,'Taille (pb)':j+3-i,'Seq_Nucleo':oneWord(seq,i,j+3-i),'Seq_proteo':trad(oneWord(seq,i,j+3-i),0)}
                         i=j
                         break
                     elif isCodonStop(seq,j) == True and j+3-i < threshold:
@@ -231,10 +274,14 @@ if __name__=='__main__':
     # writeFasta(data_inv_comp,"fasta_inv_comp.txt")
     # writeFasta(data_inv,"fasta_inv.txt")
     # writeFasta(data_comp,"fasta_comp.txt")
-    dicoForward = isGene3(data,"Forward",threshold,fourchette,fork_basse,fork_haute)
-    dicoBacward = isGene3(data_inv_comp,"Complémenaire Inverse",threshold,fourchette,fork_basse,fork_haute)
+    #dicoForward = isGene3(data,"Forward",threshold,fourchette,fork_basse,fork_haute)
     print("---- Données sur le brin principal ----")
-    listelength(dicoForward)
-    dicoCompInv = isGene3(data_inv_comp,"comp_3'-5'")
-    print("---- Données en complémentaire inverse ----")
-    listelength(dicoCompInv)
+    # print(getLengths(dicoForward))
+    # print(getLongestORF(dicoForward)) #A REVOIR
+    # print(getTopLongestORF(dicoForward,50))
+    #writeCSV(dicoForward,"ORFsearch.csv",";")
+    # dicoBackward = isGene3(data_inv_comp,"Complémenaire Inverse",threshold,fourchette,fork_basse,fork_haute)
+    # print("---- Données en complémentaire inverse ----")
+    # # print(getLengths(dicoBackward))
+    # print(getLongestORF(dicoBackward))
+    print(readCSV("prout.csv",";"))
