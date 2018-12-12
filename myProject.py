@@ -75,10 +75,12 @@ def writeCSV(dictionary,filename,separator):
     A FINIR
     '''
     listeCSV=[]
+    listeCSV.append("'cadre'"+separator+"'id'"+separator+"'start'"+separator+"'stop'"+"\n")
     for cadre in dictionary.keys():
         for orf in dictionary[cadre].keys():
             id, start, stop = orf, dictionary[cadre][orf]['Start'], dictionary[cadre][orf]['Stop']
-            listeCSV.append("'cadre'"+str(cadre)+separator+"'id' :"+str(id)+separator+"'start'"+str(start)+separator+"'stop'"+str(stop)+"\n")
+            listeCSV.append(str(cadre)+separator+str(id)+separator+str(start)+separator+str(stop)+"\n")
+            print (str(cadre)+separator+str(id)+separator+str(start)+separator+str(stop)+"\n")
     fic = open(filename,"w")
     for ligne in range(len(listeCSV)):
         fic.write(listeCSV[ligne])
@@ -89,12 +91,20 @@ def readCSV(filename,separator):
     A FINIR
     '''
     csvliste=[]
+    dicocsv={}
+    dicocsv[1]={}
+    dicocsv[2]={}
+    dicocsv[3]={}
+    orftmp=[]
     with open(filename) as csv:
         data = csv.readlines()
-        for ligne in range(len(data)):
+        for ligne in range(1,len(data)):
             csvliste.append(data[ligne])
-            print(csvliste[ligne])
-    return csvliste
+            orftmp=csvliste[ligne-1].split(separator)
+            orftmp[3]=orftmp[3][0:-1]
+            taille=int(orftmp[3])-int(orftmp[2])
+            dicocsv[int(orftmp[0])][int(orftmp[1])]={'Start':int(orftmp[2]),'Stop':int(orftmp[3]),'Taille (pb)':taille,'Seq_Nucleo':'NON RENSEIGNEE','Seq_proteo':'NON RENSEIGNEE'}
+    return dicocsv
 
 def comp_reverse(seq):
     '''
@@ -178,9 +188,11 @@ def getTopLongestORF(orflist,value):
     lengths = getLengths(orflist)
     for i in range (3):
         lengths[i].sort()
-        compteur = int((value / 100) * len(lengths[i]))
-        for j in range(1,compteur+1):
-            longestLengths.append(lengths[i][-j])
+        nombreORFcadre=len(lengths[i])
+        if nombreORFcadre>0:
+            compteur = int(value*nombreORFcadre/100)
+            for j in range(1,compteur+1):
+                longestLengths.append(lengths[i][-j])
     for cadre in orflist.keys():
         for orf in orflist[cadre].keys():
             if orflist[cadre][orf]['Taille (pb)'] in longestLengths:
@@ -270,7 +282,6 @@ def isGene3(seq,version,threshold,fourchette,fork_basse,fork_haute):
         return:
                     La fonction retourne un dictionnaire dans lequel toutes les informations des ORFs trouvées est inscrit
     '''
-    dicORF = {}
     for k in range(1,4):
         dicORF[k] = {}
         listeGenes = []
@@ -306,7 +317,7 @@ def isGene3(seq,version,threshold,fourchette,fork_basse,fork_haute):
         writeFasta(fichierGene,"cadre"+str(k)+".txt")
     return dicORF
 
-def menu(choix1,dico_setup,fichier_setup):
+def menu(choix1,dico_setup,fichier_setup,dicoForward):
     while choix1!="CSV" and choix1!="FASTA":
         print("Que voulez vous faire ?\n       Tapez 'CSV' pour lire les résultats d'une précédente étude.\n       Tapez 'FASTA' pour importer une séquence dans le programme au format fasta.\n")
         while True :
@@ -315,23 +326,23 @@ def menu(choix1,dico_setup,fichier_setup):
                 break
             except :
                 print("truc")
-    if choix1=="CSV":
-        print("Quel fichier voulez-vous lire ?")
-        try :
-            FICHIER=str(input())
-        except ValueError:
-            FICHIER="truc.csv"
-        readCSV(FICHIER,";")
-        fichier_setup=True
-        dico_setup=True
-    elif choix1=="FASTA":
-        print("Quel fichier voulez-vous lire ?")
-        try :
-            FICHIER=str(input())
-        except ValueError :
-            FICHIER="sequence.fasta"
-        data = openFasta(FICHIER)
-        fichier_setup=True
+        if choix1=="CSV":
+            print("Quel fichier voulez-vous lire ?")
+            try :
+                FICHIER=str(input())
+            except ValueError:
+                FICHIER="truc.csv"
+            dicoForward=readCSV(FICHIER,",")
+            fichier_setup=True
+            dico_setup=True
+        elif choix1=="FASTA":
+            print("Quel fichier voulez-vous lire ?")
+            try :
+                FICHIER=str(input())
+            except ValueError :
+                FICHIER="sequence.fasta"
+            data = openFasta(FICHIER)
+            fichier_setup=True
     print("Que voulez vous faire avec ces fichiers ?\n       Tapez 'AFFICHAGE' pour afficher la liste des orfs de votre fichier.\n       Tapez 'LONGEST' pour afficher les orfs les plus longs pour chaque cadre de lecture.\n       Tapez 'LONG' pour afficher une portion des orfs les plus longs.\n       Tapez 'WRITE' pour enregistrer vos résultats dans un fichier.\n       Tapez 'FIND ORF' pour trouver les orfs de votre séquence.\n       Tapez 'EXIT' pour quitter le programme !")
     choix2=str(input())
     if choix2=='AFFICHAGE':
@@ -352,10 +363,10 @@ def menu(choix1,dico_setup,fichier_setup):
         if dico_setup==True :
             print("Quelle proportion des ORFs les plus longs souhaitez-vous (en %)? (De base 50%)")
             try :
-                porcent=str(input())
+                porcent=int(input())
             except :
                 porcent=50
-            print(getTopLongestORF(dicoForward,porcent))
+            getTopLongestORF(dicoForward,porcent)
         elif fichier_setup==True:
             print("Vous devez d'abord trouver les ORFs de votre fichier !")
             choix2='FIND ORF'
@@ -366,6 +377,7 @@ def menu(choix1,dico_setup,fichier_setup):
                 FICHIER2=str(input())
             except :
                 FICHIER2="truc2.csv"
+            writeCSV(dicoForward,FICHIER2,";")
         elif fichier_setup==True :
             print("Vous devez d'abord trouver les ORFs de votre fichier !")
             choix2='FIND ORF'
@@ -401,7 +413,7 @@ def menu(choix1,dico_setup,fichier_setup):
             dico_setup=True
     elif choix2=='EXIT':
         return False,choix1,dico_setup,fichier_setup
-    return True,choix1,dico_setup,fichier_setup
+    return True,choix1,dico_setup,fichier_setup,dicoForward
 
 
 ######### WARNING ###########
@@ -421,9 +433,10 @@ if __name__=='__main__':
     dico_setup=False
     fichier_setup=False
     go=True
+    dicORF={}
     #On récupère un seuil pour la taille minimale des gènes
     while go==True :
-        go,choix1,dico_setup,fichier_setup=menu(choix1,dico_setup,fichier_setup)
+        go,choix1,dico_setup,fichier_setup,dicORF=menu(choix1,dico_setup,fichier_setup,dicORF)
     #On ouvre le fichier contenant le gène d'intérêt
     # data = openFasta("sequence.fasta")
     # writeFasta(trad(data,0),"fasta_prot.txt")
