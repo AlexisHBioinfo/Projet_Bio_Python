@@ -259,7 +259,7 @@ def isCodonStop(seq,pos): #return True if seq has a stop codon
     else :
         return False
 
-def isGene3(seq,version,threshold,fourchette,fork_basse,fork_haute):
+def isGene3(seq,version,threshold,fourchette,fork_basse,fork_haute,dicORF):
     '''
     La fonction parcourt la séquence sur sa longueur -2. Elle cherche alors en appellant la fonction isCodonStart
         si il y a présence d'un codon dans un premier cadre de lecture en parcourant de 3 en 3 la séquence. Si elle identifie un codon alors
@@ -317,7 +317,7 @@ def isGene3(seq,version,threshold,fourchette,fork_basse,fork_haute):
         writeFasta(fichierGene,"cadre"+str(k)+".txt")
     return dicORF
 
-def menu(choix1,dico_setup,fichier_setup,dicoForward):
+def menu(choix1,dico_setup,fichier_setup,dicoForward,dicoBackward):
     while choix1!="CSV" and choix1!="FASTA":
         print("Que voulez vous faire ?\n       Tapez 'CSV' pour lire les résultats d'une précédente étude.\n       Tapez 'FASTA' pour importer une séquence dans le programme au format fasta.\n")
         while True :
@@ -342,20 +342,23 @@ def menu(choix1,dico_setup,fichier_setup,dicoForward):
             except ValueError :
                 FICHIER="sequence.fasta"
             data = openFasta(FICHIER)
+            data_inv_comp = comp_reverse(data)
             fichier_setup=True
     print("Que voulez vous faire avec ces fichiers ?\n       Tapez 'AFFICHAGE' pour afficher la liste des orfs de votre fichier.\n       Tapez 'LONGEST' pour afficher les orfs les plus longs pour chaque cadre de lecture.\n       Tapez 'LONG' pour afficher une portion des orfs les plus longs.\n       Tapez 'WRITE' pour enregistrer vos résultats dans un fichier.\n       Tapez 'FIND ORF' pour trouver les orfs de votre séquence.\n       Tapez 'EXIT' pour quitter le programme !")
     choix2=str(input())
     if choix2=='AFFICHAGE':
-        while True:
-            if dico_setup==True :
-                getLengths(dicoForward)
-                break
-            elif fichier_setup==True :
-                print("Vous devez d'abord trouver les ORFs de votre fichier !")
-                choix2='FIND ORF'
+        if dico_setup==True :
+            print("Pour la séquence Forward : \n")
+            getLengths(dicoForward)
+            print("Pour la séquence Backward : \n")
+            getLengths(dicoBackward)
+        elif fichier_setup==True :
+            print("Vous devez d'abord trouver les ORFs de votre fichier !")
+            choix2='FIND ORF'
     elif choix2=='LONGEST':
         if dico_setup==True :
             print(getLongestORF(dicoForward))
+            print(getLongestORF(dicoBackward))
         elif fichier_setup==True :
             print("Vous devez d'abord trouver les ORFs de votre fichier !")
             choix2='FIND ORF'
@@ -367,6 +370,7 @@ def menu(choix1,dico_setup,fichier_setup,dicoForward):
             except :
                 porcent=50
             getTopLongestORF(dicoForward,porcent)
+            getTopLongestORF(dicoBackward,porcent)
         elif fichier_setup==True:
             print("Vous devez d'abord trouver les ORFs de votre fichier !")
             choix2='FIND ORF'
@@ -377,7 +381,13 @@ def menu(choix1,dico_setup,fichier_setup,dicoForward):
                 FICHIER2=str(input())
             except :
                 FICHIER2="truc2.csv"
-            writeCSV(dicoForward,FICHIER2,";")
+            if ".csv" in FICHIER2 :
+                FICHIER2=FICHIER2[0:-4]
+            FICHIER2=FICHIER2+"_forward.csv"
+            FICHIER3=FICHIER2[0:-12]+"_backward.csv"
+            print("Les fichiers seront : ", FICHIER2," et ", FICHIER3)
+            writeCSV(dicoForward,FICHIER2,",")
+            writeCSV(dicoBackward,FICHIER3,",")
         elif fichier_setup==True :
             print("Vous devez d'abord trouver les ORFs de votre fichier !")
             choix2='FIND ORF'
@@ -409,11 +419,16 @@ def menu(choix1,dico_setup,fichier_setup,dicoForward):
                 fourchette = False
                 fork_basse = None
                 fork_haute = None
-            dicoForward = isGene3(data,"Forward",threshold,fourchette,fork_basse,fork_haute)
+            print(data)
+            print(data_inv_comp)
+            dicoForward = isGene3(data,"Forward",threshold,fourchette,fork_basse,fork_haute,dicoForward)
+            dicoBackward = isGene3(data_inv_comp,"Backward",threshold,fourchette,fork_basse,fork_haute,dicoBackward)
+            # print(dicoForward)
+            # print(dicoBackward)
             dico_setup=True
     elif choix2=='EXIT':
         return False,choix1,dico_setup,fichier_setup
-    return True,choix1,dico_setup,fichier_setup,dicoForward
+    return True,choix1,dico_setup,fichier_setup,dicoForward,dicoBackward
 
 
 ######### WARNING ###########
@@ -434,9 +449,10 @@ if __name__=='__main__':
     fichier_setup=False
     go=True
     dicORF={}
+    dicORF_inv_comp={}
     #On récupère un seuil pour la taille minimale des gènes
     while go==True :
-        go,choix1,dico_setup,fichier_setup,dicORF=menu(choix1,dico_setup,fichier_setup,dicORF)
+        go,choix1,dico_setup,fichier_setup,dicORF,dicORF_inv_comp=menu(choix1,dico_setup,fichier_setup,dicORF,dicORF_inv_comp)
     #On ouvre le fichier contenant le gène d'intérêt
     # data = openFasta("sequence.fasta")
     # writeFasta(trad(data,0),"fasta_prot.txt")
