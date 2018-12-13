@@ -120,6 +120,15 @@ def readCSV(filename,separator):
 
 def fasta_csv_link(dicORF,seq):
     '''
+    Cette fonction associe un dictionnaire créé par le biais d'un fichier CSV à une séquence récupérée d'un fichier fasta en
+        ajoutant la séquence correspondant à chaque ORFs du dictionnaire dans celui.
+
+        argument:
+                dicORF: Le dictionnaire que vous voulez compléter
+                seq: la séquence correspondant aux données du dictionnaire
+
+        return:
+                La fonction retourne le dictionnaire
     '''
     for cadre in dicORF.keys():
         for gene in dicORF[cadre]:
@@ -289,7 +298,7 @@ def isGene3(seq,version,threshold,fourchette,fork_basse,fork_haute,dicORF):
         le cadre de lecture (0,1,2), la longueur j+2-i égale au début du codon start et à la fin du codon stop. De plus, elle print la suite nucléotidique du codon start et du codon stop
         et leur position. A la fin d'un cadre de lecture, elle reprend du début pour faire le deuxième cadre de lecture puis le troisième.
 
-        arguement:
+        argument:
                     seq: séquence Fasta étudiée
                     version: la version peut être 5'3' ou complementaire inversé
                     threshold: cela correspond à une longueur d'ORF minimal afin de limiter les faux positifs
@@ -338,6 +347,13 @@ def isGene3(seq,version,threshold,fourchette,fork_basse,fork_haute,dicORF):
     return dicORF
 
 def menu(choix1,dico_setup,fichier_setup,dicoForward,dicoBackward):
+    '''
+    Fonction menu dans lequel toutes les fonctions sont appelées et correspond au programme côté utilisateur.
+        Ce menu permet à l'utilisateur premièrement de choisir quel type de fichier il veut utiliser (CSV ou FASTA), sachant
+        qu'un fichier CSV est un fichier de résultats et le fichier FASTA un fichier de données brutes. Selon ce choix, le menu
+        propose différentes possibilités. Les fonctions faites pour les CSV d'un côté, celle faites pour les FASTA de l'autre et
+        les fonctions communes sont accessibles aux deux.
+    '''
     while choix1 != "CSV" and choix1 != "FASTA":
         print("Que voulez vous faire ?\n               Tapez 'CSV' pour lire les résultats d'une précédente étude.\n               Tapez 'FASTA' pour importer une séquence dans le programme au format fasta.\n")
         while True :
@@ -367,7 +383,6 @@ def menu(choix1,dico_setup,fichier_setup,dicoForward,dicoBackward):
                 data_inv_comp = comp_reverse(data)
                 fichier_setup = True
                 dicoForward = fasta_csv_link(dicoForward,data)
-                # dicoBackward=fasta_csv_link(dicoBackward,data_inv_comp)
         elif choix1=="FASTA":
             print("Quel fichier voulez-vous lire ?")
             try :
@@ -465,18 +480,6 @@ def menu(choix1,dico_setup,fichier_setup,dicoForward,dicoBackward):
         return False,choix1,dico_setup,fichier_setup,dicoForward,dicoBackward
     return True,choix1,dico_setup,fichier_setup,dicoForward,dicoBackward
 
-
-######### WARNING ###########
-#getGeneticCode(NCBI_ID) pour les biais de codon entre les espèces
-#findORF(seq, threshold,codeTable) = isGene3 mais prend en compte les biais de Codon
-
-
-#Ce serait bien de save les séquences inv, comp et comp inv dans un fasta ? DONE
-# -> Ajout des codons init' alternatifs
-# -> Suppression d'un codon stop (non présent dans le biais de codon)
-# -> Ajout Threshold (minimum length : 90pb) "various thresholds (No threshold, 90bp, 210bp, 300bp, 420bp, for example.)"
-#############################
-
 if __name__=='__main__':
     dico_table = table_genetic()
     choix1 = ''
@@ -485,29 +488,5 @@ if __name__=='__main__':
     go = True
     dicORF = {}
     dicORF_inv_comp = {}
-    #On récupère un seuil pour la taille minimale des gènes
     while go == True :
         go,choix1,dico_setup,fichier_setup,dicORF,dicORF_inv_comp = menu(choix1,dico_setup,fichier_setup,dicORF,dicORF_inv_comp)
-    ## On ouvre le fichier contenant le gène d'intérêt
-    # data = openFasta("sequence.fasta")
-    # writeFasta(trad(data,0),"fasta_prot.txt")
-    # writeFasta(trad(data,1),"fasta_prot1.txt")
-    # writeFasta(trad(data,2),"fasta_prot2.txt")
-    # writeFasta(trad(data_inv_comp,0),"fasta_prot2.txt")
-    # writeFasta(trad(data_inv_comp,1),"fasta_prot1.txt")
-    # writeFasta(trad(data_inv_comp,2),"fasta_prot2.txt")
-    # data_inv,data_comp,data_inv_comp=comp_reverse(data)
-    # writeFasta(data_inv_comp,"fasta_inv_comp.txt")
-    # writeFasta(data_inv,"fasta_inv.txt")
-    # writeFasta(data_comp,"fasta_comp.txt")
-    # dicoForward = isGene3(data,"Forward",threshold,fourchette,fork_basse,fork_haute)
-    # print("---- Données sur le brin principal ----")
-    # print(getLengths(dicoForward))
-    # print(getLongestORF(dicoForward)) #A REVOIR
-    # print(getTopLongestORF(dicoForward,50))
-    # writeCSV(dicoForward,"ORFsearch.csv",";")
-    # dicoBackward = isGene3(data_inv_comp,"Complémenaire Inverse",threshold,fourchette,fork_basse,fork_haute)
-    # print("---- Données en complémentaire inverse ----")
-    # print(getLengths(dicoBackward))
-    # print(getLongestORF(dicoBackward))
-    # print(readCSV("prout.csv",";"))
