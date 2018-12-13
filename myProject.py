@@ -193,6 +193,8 @@ def getLongestORF(orflist):
     '''
     for cadre in orflist.keys():
         taillemax = 0
+        genemax = 0
+        cadremax = 0
         for gene in orflist[cadre]:
             taille = orflist[cadre][gene]['Taille (pb)']
             if taille > taillemax :
@@ -346,7 +348,7 @@ def isGene3(seq,version,threshold,fourchette,fork_basse,fork_haute,dicORF):
         writeFasta(fichierGene,"cadre"+str(k)+".txt")
     return dicORF
 
-def menu(choix1,dico_setup,fichier_setup,dicoForward,dicoBackward):
+def menu():
     '''
     Fonction menu dans lequel toutes les fonctions sont appelées et correspond au programme côté utilisateur.
         Ce menu permet à l'utilisateur premièrement de choisir quel type de fichier il veut utiliser (CSV ou FASTA), sachant
@@ -354,26 +356,48 @@ def menu(choix1,dico_setup,fichier_setup,dicoForward,dicoBackward):
         propose différentes possibilités. Les fonctions faites pour les CSV d'un côté, celle faites pour les FASTA de l'autre et
         les fonctions communes sont accessibles aux deux.
     '''
-    while choix1 != "CSV" and choix1 != "FASTA":
-        print("Que voulez vous faire ?\n               Tapez 'CSV' pour lire les résultats d'une précédente étude.\n               Tapez 'FASTA' pour importer une séquence dans le programme au format fasta.\n")
-        while True :
-            try :
-                choix1 = str(input())
-                break
-            except :
-                print("truc")
-        if choix1 == "CSV":
-            print("Quel fichier voulez-vous lire ?")
-            try :
-                FICHIER = str(input())
-            except ValueError:
-                FICHIER = "truc.csv"
-            dicoForward = readCSV(FICHIER,",")
-            fichier_setup = True
-            dico_setup = True
-            print("Voulez vous ajouter un fichier fasta lié à votre fichier csv ? (o/n)")
-            choix4 = str(input())
-            if choix4 == "o":
+    choix1 = ''
+    dico_setup = False
+    fichier_setup = False
+    go = True
+    dicoForward = {}
+    dicoBackward = {}
+    while go==True:
+        while choix1 != "CSV" and choix1 != "FASTA":
+            print("Que voulez vous faire ?\n               Tapez 'CSV' pour lire les résultats d'une précédente étude.\n               Tapez 'FASTA' pour importer une séquence dans le programme au format fasta.\n")
+            while True :
+                try :
+                    choix1 = str(input())
+                    break
+                except :
+                    print("truc")
+            if choix1 == "CSV":
+                print("Quel fichier voulez-vous lire ?")
+                try :
+                    FICHIER = str(input())
+                except :
+                    FICHIER = "truc2.csv"
+                if ".csv" in FICHIER :
+                    FICHIER = FICHIER[0:-4]
+                FICHIER=FICHIER+"_forward.csv"
+                FICHIER1=FICHIER[0:-12]+"_backward.csv"
+                dicoForward = readCSV(FICHIER,",")
+                dicoBackward = readCSV(FICHIER1, ",")
+                fichier_setup = True
+                dico_setup = True
+                print("Voulez vous ajouter un fichier fasta lié à votre fichier csv ? (o/n)")
+                choix4 = str(input())
+                if choix4 == "o":
+                    print("Quel fichier voulez-vous lire ?")
+                    try :
+                        FICHIER = str(input())
+                    except ValueError :
+                        FICHIER = "sequence.fasta"
+                    data = openFasta(FICHIER)
+                    data_inv_comp = comp_reverse(data)
+                    fichier_setup = True
+                    dicoForward = fasta_csv_link(dicoForward,data)
+            elif choix1=="FASTA":
                 print("Quel fichier voulez-vous lire ?")
                 try :
                     FICHIER = str(input())
@@ -382,111 +406,93 @@ def menu(choix1,dico_setup,fichier_setup,dicoForward,dicoBackward):
                 data = openFasta(FICHIER)
                 data_inv_comp = comp_reverse(data)
                 fichier_setup = True
-                dicoForward = fasta_csv_link(dicoForward,data)
-        elif choix1=="FASTA":
-            print("Quel fichier voulez-vous lire ?")
-            try :
-                FICHIER = str(input())
-            except ValueError :
-                FICHIER = "sequence.fasta"
-            data = openFasta(FICHIER)
-            data_inv_comp = comp_reverse(data)
-            fichier_setup = True
-    print("Que voulez vous faire avec ces fichiers ?\n           Tapez 'AFFICHAGE' pour afficher la liste des orfs de votre fichier.\n           Tapez 'LONGEST' pour afficher les orfs les plus longs pour chaque cadre de lecture.\n           Tapez 'LONG' pour afficher une portion des orfs les plus longs.\n           Tapez 'WRITE' pour enregistrer vos résultats dans un fichier.\n           Tapez 'FIND ORF' pour trouver les orfs de votre séquence.\n           Tapez 'EXIT' pour quitter le programme !")
-    choix2=str(input())
-    if choix2 == 'AFFICHAGE':
-        if dico_setup == True :
-            print("Pour la séquence Forward : \n")
-            getLengths(dicoForward,0)
-            print("Pour la séquence Backward : \n")
-            getLengths(dicoBackward,0)
-        elif fichier_setup == True :
-            print("Vous devez d'abord trouver les ORFs de votre fichier !")
-            choix2 = 'FIND ORF'
-    elif choix2 == 'LONGEST':
-        if dico_setup == True :
-            print("Voici la liste des ORFs les plus longs pour chaque cadre de lecture :")
-            print("       Sens Forward")
-            getLongestORF(dicoForward)
-            print("       Sens Backward")
-            getLongestORF(dicoBackward)
-        elif fichier_setup == True :
-            print("Vous devez d'abord trouver les ORFs de votre fichier !")
-            choix2 = 'FIND ORF'
-    elif choix2 == 'LONG':
-        if dico_setup == True :
-            print("Quelle proportion des ORFs les plus longs souhaitez-vous (en %)? (De base 50%)")
-            try :
-                pourcent = int(input())
-            except :
-                pourcent = 50
-            print("Les ",pourcent,"% ORF les plus grands")
-            print("Pour la séquence Forward : \n")
-            getTopLongestORF(dicoForward,pourcent)
-            print("Pour la séquence Backward : \n")
-            getTopLongestORF(dicoBackward,pourcent)
-        elif fichier_setup == True:
-            print("Vous devez d'abord trouver les ORFs de votre fichier !")
-            choix2='FIND ORF'
-    elif choix2 == 'WRITE':
-        if dico_setup == True :
-            print("Quel est le nom du fichier sur lequel vous souhaitez enregistrer les données ?")
-            try :
-                FICHIER2 = str(input())
-            except :
-                FICHIER2 = "truc2.csv"
-            if ".csv" in FICHIER2 :
-                FICHIER2 = FICHIER2[0:-4]
-            FICHIER2 = FICHIER2+"_forward.csv"
-            FICHIER3 = FICHIER2[0:-12]+"_backward.csv"
-            print("Les fichiers seront : ", FICHIER2," et ", FICHIER3)
-            writeCSV(dicoForward,FICHIER2,",")
-            writeCSV(dicoBackward,FICHIER3,",")
-        elif fichier_setup == True :
-            print("Vous devez d'abord trouver les ORFs de votre fichier !")
-            choix2 = 'FIND ORF'
-    if choix2 == 'FIND ORF':
-        if dico_setup == True :
-            print("Voulez vous changer de fichier à étudier ? (o/n)")
-            while True :
+        print("Que voulez vous faire avec ces fichiers ?\n           Tapez 'AFFICHAGE' pour afficher la liste des orfs de votre fichier.\n           Tapez 'LONGEST' pour afficher les orfs les plus longs pour chaque cadre de lecture.\n           Tapez 'LONG' pour afficher une portion des orfs les plus longs.\n           Tapez 'WRITE' pour enregistrer vos résultats dans un fichier.\n           Tapez 'FIND ORF' pour trouver les orfs de votre séquence.\n           Tapez 'EXIT' pour quitter le programme !")
+        choix2=str(input())
+        if choix2 == 'AFFICHAGE':
+            if dico_setup == True :
+                print("Pour la séquence Forward : \n")
+                getLengths(dicoForward,0)
+                print("Pour la séquence Backward : \n")
+                getLengths(dicoBackward,0)
+            elif fichier_setup == True :
+                print("Vous devez d'abord trouver les ORFs de votre fichier !")
+                choix2 = 'FIND ORF'
+        elif choix2 == 'LONGEST':
+            if dico_setup == True :
+                print("Voici la liste des ORFs les plus longs pour chaque cadre de lecture :")
+                print("       Sens Forward")
+                getLongestORF(dicoForward)
+                print("       Sens Backward")
+                getLongestORF(dicoBackward)
+            elif fichier_setup == True :
+                print("Vous devez d'abord trouver les ORFs de votre fichier !")
+                choix2 = 'FIND ORF'
+        elif choix2 == 'LONG':
+            if dico_setup == True :
+                print("Quelle proportion des ORFs les plus longs souhaitez-vous (en %)? (De base 50%)")
                 try :
-                    choix3 = str(input())
-                    if choix3 == "o" or choix3 == "n" :
-                        break
+                    pourcent = int(input())
                 except :
-                    break
-            if choix3 == "o":
-                choix1 = ""
-        else :
-            try:
-                threshold = int(input("Quelle valeur de threshold voulez-vous ? Entrez un nombre et appuyez sur ENTREE pour valider votre choix. La valeur par défaut est de 90pb : "))
-            except ValueError:
-                threshold = 90
-                #On récupère une fourchette d'exécution du programme au cas où l'utilisateur souhaiterait cibler un endroit particulier
-            try:
-                fourchette = str(input("Entrez une fourchette de lecture du génome (deux nombres séparés par un espace) et appuyez sur ENTREE, par défaut le génome entier est analysé : "))
-                fork_basse = (int(fourchette.split(" ")[0])//3)*3
-                fork_haute = (int(fourchette.split(" ")[1])//3)*3
-                if fork_basse > fork_haute: #On vérifie que l'utilisateur ne se soit pas trompé de sens dans l'entrée de la fourchette de lecture
-                    fork_basse, fork_haute = fork_haute, fork_basse
-            except ValueError:
-                fourchette = False
-                fork_basse = None
-                fork_haute = None
-            dicoForward = isGene3(data,"Forward",threshold,fourchette,fork_basse,fork_haute,dicoForward)
-            dicoBackward = isGene3(data_inv_comp,"Backward",threshold,fourchette,fork_basse,fork_haute,dicoBackward)
-            dico_setup=True
-    elif choix2=='EXIT':
-        return False,choix1,dico_setup,fichier_setup,dicoForward,dicoBackward
-    return True,choix1,dico_setup,fichier_setup,dicoForward,dicoBackward
+                    pourcent = 50
+                print("Les ",pourcent,"% ORF les plus grands")
+                print("Pour la séquence Forward : \n")
+                getTopLongestORF(dicoForward,pourcent)
+                print("Pour la séquence Backward : \n")
+                getTopLongestORF(dicoBackward,pourcent)
+            elif fichier_setup == True:
+                print("Vous devez d'abord trouver les ORFs de votre fichier !")
+                choix2='FIND ORF'
+        elif choix2 == 'WRITE':
+            if dico_setup == True :
+                print("Quel est le nom du fichier sur lequel vous souhaitez enregistrer les données ?")
+                try :
+                    FICHIER2 = str(input())
+                except :
+                    FICHIER2 = "truc2.csv"
+                if ".csv" in FICHIER2 :
+                    FICHIER2 = FICHIER2[0:-4]
+                FICHIER2 = FICHIER2+"_forward.csv"
+                FICHIER3 = FICHIER2[0:-12]+"_backward.csv"
+                print("Les fichiers seront : ", FICHIER2," et ", FICHIER3)
+                writeCSV(dicoForward,FICHIER2,",")
+                writeCSV(dicoBackward,FICHIER3,",")
+            elif fichier_setup == True :
+                print("Vous devez d'abord trouver les ORFs de votre fichier !")
+                choix2 = 'FIND ORF'
+        if choix2 == 'FIND ORF':
+            if dico_setup == True :
+                print("Voulez vous changer de fichier à étudier ? (o/n)")
+                while True :
+                    try :
+                        choix3 = str(input())
+                        if choix3 == "o" or choix3 == "n" :
+                            break
+                    except :
+                        break
+                if choix3 == "o":
+                    choix1 = ""
+            else :
+                try:
+                    threshold = int(input("Quelle valeur de threshold voulez-vous ? Entrez un nombre et appuyez sur ENTREE pour valider votre choix. La valeur par défaut est de 90pb : "))
+                except ValueError:
+                    threshold = 90
+                    #On récupère une fourchette d'exécution du programme au cas où l'utilisateur souhaiterait cibler un endroit particulier
+                try:
+                    fourchette = str(input("Entrez une fourchette de lecture du génome (deux nombres séparés par un espace) et appuyez sur ENTREE, par défaut le génome entier est analysé : "))
+                    fork_basse = (int(fourchette.split(" ")[0])//3)*3
+                    fork_haute = (int(fourchette.split(" ")[1])//3)*3
+                    if fork_basse > fork_haute: #On vérifie que l'utilisateur ne se soit pas trompé de sens dans l'entrée de la fourchette de lecture
+                        fork_basse, fork_haute = fork_haute, fork_basse
+                except ValueError:
+                    fourchette = False
+                    fork_basse = None
+                    fork_haute = None
+                dicoForward = isGene3(data,"Forward",threshold,fourchette,fork_basse,fork_haute,dicoForward)
+                dicoBackward = isGene3(data_inv_comp,"Backward",threshold,fourchette,fork_basse,fork_haute,dicoBackward)
+                dico_setup=True
+        elif choix2=='EXIT':
+            go=False
 
 if __name__=='__main__':
     dico_table = table_genetic()
-    choix1 = ''
-    dico_setup = False
-    fichier_setup = False
-    go = True
-    dicORF = {}
-    dicORF_inv_comp = {}
-    while go == True :
-        go,choix1,dico_setup,fichier_setup,dicORF,dicORF_inv_comp = menu(choix1,dico_setup,fichier_setup,dicORF,dicORF_inv_comp)
+    menu()
