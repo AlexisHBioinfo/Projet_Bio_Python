@@ -153,7 +153,7 @@ def comp_reverse(seq):
     seq_comp_inv=seq_comp[::-1]
     return seq_comp_inv
 
-def getLengths(orflist):
+def getLengths(orflist,display):
     '''
     La fonction parcourt le dictionnaire et renvoit la taille des ORFs dans une liste pour chaque cadre de lecture.
 
@@ -168,7 +168,8 @@ def getLengths(orflist):
         listelongueur.append([])
         for orf in orflist[cadre].keys():
             listelongueur[cadre-1].append(orflist[cadre][orf]['Taille (pb)'])
-            print("Pour le cadre : "+str(cadre)+" l'orf numéro : "+str(orf)+" a une taille de : "+str(orflist[cadre][orf]['Taille (pb)'])+"pb")
+            if display ==0 :
+                print("Pour le cadre : "+str(cadre)+" l'orf numéro : "+str(orf)+" a une taille de : "+str(orflist[cadre][orf]['Taille (pb)'])+"pb")
     return listelongueur
 
 def getLongestORF(orflist):
@@ -203,27 +204,25 @@ def getTopLongestORF(orflist,value):
                     value:pourcentage des ORFs les plus longs que l'on souhaite afficher
 
             Return:
-                    Une liste contenant des strings dans lesquels sont notés les ORFs recherchés
+                    Rien
     '''
     longestLengths = []
-    ListeLongestORFLength =[]
-    lengths = getLengths(orflist)
+    lengths = getLengths(orflist,1)
     for i in range (3):
         lengths[i].sort()
         nombreORFcadre=len(lengths[i])
         if nombreORFcadre>0:
             compteur = int(value*nombreORFcadre/100)
+            if compteur==0:
+                compteur=1
             for j in range(1,compteur+1):
                 longestLengths.append(lengths[i][-j])
     for cadre in orflist.keys():
         for orf in orflist[cadre].keys():
             if orflist[cadre][orf]['Taille (pb)'] in longestLengths:
-                ListeLongestORFLength.append("Pour le cadre : "+str(cadre)+" l'orf numéro : "+str(orf)+" fait parti des "+str(value)+"% orf les plus grands, avec une taille de : "+str(orflist[cadre][orf]['Taille (pb)'])+"pb")
-    return ListeLongestORFLength
+                print("Pour le cadre : "+str(cadre)+" l'orf numéro : "+str(orf)+" a une taille de : "+str(orflist[cadre][orf]['Taille (pb)'])+"pb")
 
-#2.2.1 Statistiques basiques
-
-def oneWord(seq,pos,wlen): #return a piece with a lenght = wlen of the string seq from the index start
+def oneWord(seq,pos,wlen):
     '''
     La fonction sert à copier une séquence dans une liste à partir d'une position start et sur une longueur donnée
 
@@ -243,7 +242,7 @@ def oneWord(seq,pos,wlen): #return a piece with a lenght = wlen of the string se
             sequence=sequence+str(seq[i])
     return sequence
 
-def isCodonStart(seq,pos): #return True if the string seq has start codon
+def isCodonStart(seq,pos):
     '''
     La fonction sert à identifier le codon start de la séquence, en parcourant la séquence de 1 en 1 et stock dans la variable
         codon une suite de 3 nucléotides.
@@ -262,7 +261,7 @@ def isCodonStart(seq,pos): #return True if the string seq has start codon
     else :
         return False
 
-def isCodonStop(seq,pos): #return True if seq has a stop codon
+def isCodonStop(seq,pos):
     '''
     la fonction sert à identifier le codon stop de la séquence, en parcourant la séquence de 1 en 1 et stock
             dans la variable codon une suite de 3 nucléotides
@@ -384,9 +383,9 @@ def menu(choix1,dico_setup,fichier_setup,dicoForward,dicoBackward):
     if choix2=='AFFICHAGE':
         if dico_setup==True :
             print("Pour la séquence Forward : \n")
-            getLengths(dicoForward)
+            getLengths(dicoForward,0)
             print("Pour la séquence Backward : \n")
-            getLengths(dicoBackward)
+            getLengths(dicoBackward,0)
         elif fichier_setup==True :
             print("Vous devez d'abord trouver les ORFs de votre fichier !")
             choix2='FIND ORF'
@@ -401,11 +400,14 @@ def menu(choix1,dico_setup,fichier_setup,dicoForward,dicoBackward):
         if dico_setup==True :
             print("Quelle proportion des ORFs les plus longs souhaitez-vous (en %)? (De base 50%)")
             try :
-                porcent=int(input())
+                pourcent=int(input())
             except :
-                porcent=50
-            getTopLongestORF(dicoForward,porcent)
-            getTopLongestORF(dicoBackward,porcent)
+                pourcent=50
+            print("Les ",pourcent,"% ORF les plus grands")
+            print("Pour la séquence Forward : \n")
+            getTopLongestORF(dicoForward,pourcent)
+            print("Pour la séquence Backward : \n")
+            getTopLongestORF(dicoBackward,pourcent)
         elif fichier_setup==True:
             print("Vous devez d'abord trouver les ORFs de votre fichier !")
             choix2='FIND ORF'
@@ -460,6 +462,18 @@ def menu(choix1,dico_setup,fichier_setup,dicoForward,dicoBackward):
     elif choix2=='EXIT':
         return False,choix1,dico_setup,fichier_setup,dicoForward,dicoBackward
     return True,choix1,dico_setup,fichier_setup,dicoForward,dicoBackward
+
+
+######### WARNING ###########
+#getGeneticCode(NCBI_ID) pour les biais de codon entre les espèces
+#findORF(seq, threshold,codeTable) = isGene3 mais prend en compte les biais de Codon
+
+
+#Ce serait bien de save les séquences inv, comp et comp inv dans un fasta ? DONE
+# -> Ajout des codons init' alternatifs
+# -> Suppression d'un codon stop (non présent dans le biais de codon)
+# -> Ajout Threshold (minimum length : 90pb) "various thresholds (No threshold, 90bp, 210bp, 300bp, 420bp, for example.)"
+#############################
 
 if __name__=='__main__':
     dico_table = table_genetic()
