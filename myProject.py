@@ -125,7 +125,6 @@ def fasta_csv_link(dicORF,seq):
             seq_nucleot=seq[dicORF[cadre][gene]['Start']:dicORF[cadre][gene]['Stop']]
             dicORF[cadre][gene]['Seq_Nucleo']=seq_nucleot
             dicORF[cadre][gene]['Seq_proteo']=trad(seq_nucleot,0)
-            print (dicORF[cadre][gene])
     return dicORF
 
 def comp_reverse(seq):
