@@ -183,15 +183,15 @@ def getLongestORF(orflist):
             Return:
                     Un truc bizarre
     '''
-    maxval = []
-    for i in range(1,4):
-        print(i)
-        try:
-            maxval.append(max(orflist[i].items(),key=lambda x:x[1]['Taille (pb)']))
-            print("Pour le cadre",i,"l'ORF",maxval[0],"a la taille maximale de",maxval[1]['Taille (pb)'])
-        except ValueError:
-            print("Pas de données pour le cadre",i)
-    return maxval
+    for cadre in orflist.keys():
+        taillemax=0
+        for gene in orflist[cadre]:
+            taille=orflist[cadre][gene]['Taille (pb)']
+            if taille > taillemax :
+                taillemax = taille
+                cadremax= cadre
+                genemax=gene
+        print ("L'ORF ", genemax, " du cadre ", cadremax," avec une taille de : ", taillemax,"pb")
 
 def getTopLongestORF(orflist,value):
     '''
@@ -391,8 +391,11 @@ def menu(choix1,dico_setup,fichier_setup,dicoForward,dicoBackward):
             choix2='FIND ORF'
     elif choix2=='LONGEST':
         if dico_setup==True :
-            print(getLongestORF(dicoForward))
-            print(getLongestORF(dicoBackward))
+            print("Voici la liste des ORFs les plus longs pour chaque cadre de lecture :")
+            print("       Sens Forward")
+            getLongestORF(dicoForward)
+            print("       Sens Backward")
+            getLongestORF(dicoBackward)
         elif fichier_setup==True :
             print("Vous devez d'abord trouver les ORFs de votre fichier !")
             choix2='FIND ORF'
