@@ -24,7 +24,7 @@ def trad(seq,cadre):
 
         argument:
                 seq:séquence Fasta utilisée
-                cadre:cadre de lecture sur lequel traduire la séquence (1,2 ou3)
+                cadre:cadre de lecture sur lequel traduire la séquence (1,2 ou 3)
         Return:
                 la séquence traduite en format .fasta
     '''
@@ -32,9 +32,9 @@ def trad(seq,cadre):
     for i in range(cadre,len(seq)-2,3):
         codon = ""
         prot = ""
-        codon+=seq[i]+seq[i+1]+seq[i+2]
-        prot+=dico_table[codon]
-        seqprot+=prot
+        codon += seq[i]+seq[i+1]+seq[i+2]
+        prot += dico_table[codon]
+        seqprot += prot
     return seqprot
 
 def openFasta(file):
@@ -51,7 +51,7 @@ def openFasta(file):
     with open(file) as fasta:
         data = fasta.readlines()
         data.pop(0)
-        datastr=""
+        datastr = ""
         for i in data:
             datastr+=i
         datastr = str.replace(datastr,"\n","")
@@ -81,7 +81,7 @@ def writeCSV(dictionary,filename,separator):
             return:
                     Rien
     '''
-    listeCSV=[]
+    listeCSV = []
     listeCSV.append("'cadre'"+separator+"'id'"+separator+"'start'"+separator+"'stop'"+"\n")
     for cadre in dictionary.keys():
         for orf in dictionary[cadre].keys():
@@ -102,20 +102,20 @@ def readCSV(filename,separator):
             return:
                     Le dictionnaire contenant les informations nouvellement récupérées.
     '''
-    csvliste=[]
-    dicocsv={}
-    dicocsv[1]={}
-    dicocsv[2]={}
-    dicocsv[3]={}
+    csvliste = []
+    dicocsv = {}
+    dicocsv[1] = {}
+    dicocsv[2] = {}
+    dicocsv[3] = {}
     orftmp=[]
     with open(filename) as csv:
         data = csv.readlines()
         for ligne in range(1,len(data)):
             csvliste.append(data[ligne])
-            orftmp=csvliste[ligne-1].split(separator)
-            orftmp[3]=orftmp[3][0:-1]
-            taille=int(orftmp[3])-int(orftmp[2])
-            dicocsv[int(orftmp[0])][int(orftmp[1])]={'Start':int(orftmp[2]),'Stop':int(orftmp[3]),'Taille (pb)':taille,'Seq_Nucleo':'NON RENSEIGNEE','Seq_proteo':'NON RENSEIGNEE'}
+            orftmp = csvliste[ligne-1].split(separator)
+            orftmp[3] = orftmp[3][0:-1]
+            taille = int(orftmp[3]) - int(orftmp[2])
+            dicocsv[int(orftmp[0])][int(orftmp[1])] = {'Start':int(orftmp[2]),'Stop':int(orftmp[3]),'Taille (pb)':taille,'Seq_Nucleo':'NON RENSEIGNEE','Seq_proteo':'NON RENSEIGNEE'}
     return dicocsv
 
 def fasta_csv_link(dicORF,seq):
@@ -123,9 +123,9 @@ def fasta_csv_link(dicORF,seq):
     '''
     for cadre in dicORF.keys():
         for gene in dicORF[cadre]:
-            seq_nucleot=seq[dicORF[cadre][gene]['Start']:dicORF[cadre][gene]['Stop']]
-            dicORF[cadre][gene]['Seq_Nucleo']=seq_nucleot
-            dicORF[cadre][gene]['Seq_proteo']=trad(seq_nucleot,0)
+            seq_nucleot = seq[dicORF[cadre][gene]['Start']:dicORF[cadre][gene]['Stop']]
+            dicORF[cadre][gene]['Seq_Nucleo'] = seq_nucleot
+            dicORF[cadre][gene]['Seq_proteo'] = trad(seq_nucleot,0)
     return dicORF
 
 def comp_reverse(seq):
@@ -138,19 +138,19 @@ def comp_reverse(seq):
         return:
                 La fonction retourne la séquence reverse complémentaire
     '''
-    a=''
-    seq_comp=''
+    a = ''
+    seq_comp = ''
     for i in seq:
-        if i =='A':
-            a='T'
-        elif i=='T':
-            a='A'
-        elif i=='G':
-            a='C'
-        elif i=='C':
-            a='G'
+        if i == 'A':
+            a = 'T'
+        elif i == 'T':
+            a = 'A'
+        elif i == 'G':
+            a = 'C'
+        elif i == 'C':
+            a = 'G'
         seq_comp += a
-    seq_comp_inv=seq_comp[::-1]
+    seq_comp_inv = seq_comp[::-1]
     return seq_comp_inv
 
 def getLengths(orflist,display):
@@ -168,29 +168,28 @@ def getLengths(orflist,display):
         listelongueur.append([])
         for orf in orflist[cadre].keys():
             listelongueur[cadre-1].append(orflist[cadre][orf]['Taille (pb)'])
-            if display ==0 :
+            if display == 0 :
                 print("Pour le cadre : "+str(cadre)+" l'orf numéro : "+str(orf)+" a une taille de : "+str(orflist[cadre][orf]['Taille (pb)'])+"pb")
     return listelongueur
 
 def getLongestORF(orflist):
     '''
     La fonction parcourt le dictionnaire et retourne les ORFs pour lesquels la taille est la plus importante
-        FONCTION DU DEMON
 
             argument:
-                    orflist:dictionnaire dans lequel se trouve les informations
+                    orflist: dictionnaire dans lequel se trouve les informations
 
             Return:
-                    Un truc bizarre
+                    Rien
     '''
     for cadre in orflist.keys():
-        taillemax=0
+        taillemax = 0
         for gene in orflist[cadre]:
-            taille=orflist[cadre][gene]['Taille (pb)']
+            taille = orflist[cadre][gene]['Taille (pb)']
             if taille > taillemax :
                 taillemax = taille
-                cadremax= cadre
-                genemax=gene
+                cadremax = cadre
+                genemax = gene
         print ("L'ORF ", genemax, " du cadre ", cadremax," avec une taille de : ", taillemax,"pb")
 
 def getTopLongestORF(orflist,value):
@@ -210,11 +209,11 @@ def getTopLongestORF(orflist,value):
     lengths = getLengths(orflist,1)
     for i in range (3):
         lengths[i].sort()
-        nombreORFcadre=len(lengths[i])
-        if nombreORFcadre>0:
+        nombreORFcadre = len(lengths[i])
+        if nombreORFcadre > 0:
             compteur = int(value*nombreORFcadre/100)
-            if compteur==0:
-                compteur=1
+            if compteur == 0:
+                compteur = 1
             for j in range(1,compteur+1):
                 longestLengths.append(lengths[i][-j])
     for cadre in orflist.keys():
@@ -237,9 +236,9 @@ def oneWord(seq,pos,wlen):
     a=0
     sequence=''
     for i in range(len(seq)):
-        if i>=pos and a<wlen :
-            a=a+1
-            sequence=sequence+str(seq[i])
+        if i >= pos and a<wlen :
+            a += 1
+            sequence += str(seq[i])
     return sequence
 
 def isCodonStart(seq,pos):
@@ -275,7 +274,7 @@ def isCodonStop(seq,pos):
                     elle trouve un des deux codons Stop, sinon elle retourne False
     '''
     codon=oneWord(seq,pos,3)
-    if codon=='TAA' or codon=='TAG':
+    if codon == 'TAA' or codon == 'TAG':
         return True
     else :
         return False
@@ -339,110 +338,110 @@ def isGene3(seq,version,threshold,fourchette,fork_basse,fork_haute,dicORF):
     return dicORF
 
 def menu(choix1,dico_setup,fichier_setup,dicoForward,dicoBackward):
-    while choix1!="CSV" and choix1!="FASTA":
-        print("Que voulez vous faire ?\n       Tapez 'CSV' pour lire les résultats d'une précédente étude.\n       Tapez 'FASTA' pour importer une séquence dans le programme au format fasta.\n")
+    while choix1 != "CSV" and choix1 != "FASTA":
+        print("Que voulez vous faire ?\n               Tapez 'CSV' pour lire les résultats d'une précédente étude.\n               Tapez 'FASTA' pour importer une séquence dans le programme au format fasta.\n")
         while True :
             try :
-                choix1=str(input())
+                choix1 = str(input())
                 break
             except :
                 print("truc")
-        if choix1=="CSV":
+        if choix1 == "CSV":
             print("Quel fichier voulez-vous lire ?")
             try :
-                FICHIER=str(input())
+                FICHIER = str(input())
             except ValueError:
-                FICHIER="truc.csv"
-            dicoForward=readCSV(FICHIER,",")
-            fichier_setup=True
-            dico_setup=True
+                FICHIER = "truc.csv"
+            dicoForward = readCSV(FICHIER,",")
+            fichier_setup = True
+            dico_setup = True
             print("Voulez vous ajouter un fichier fasta lié à votre fichier csv ? (o/n)")
-            choix4=str(input())
-            if choix4=="o":
+            choix4 = str(input())
+            if choix4 == "o":
                 print("Quel fichier voulez-vous lire ?")
                 try :
-                    FICHIER=str(input())
+                    FICHIER = str(input())
                 except ValueError :
-                    FICHIER="sequence.fasta"
+                    FICHIER = "sequence.fasta"
                 data = openFasta(FICHIER)
                 data_inv_comp = comp_reverse(data)
-                fichier_setup=True
-                dicoForward=fasta_csv_link(dicoForward,data)
+                fichier_setup = True
+                dicoForward = fasta_csv_link(dicoForward,data)
                 # dicoBackward=fasta_csv_link(dicoBackward,data_inv_comp)
         elif choix1=="FASTA":
             print("Quel fichier voulez-vous lire ?")
             try :
-                FICHIER=str(input())
+                FICHIER = str(input())
             except ValueError :
-                FICHIER="sequence.fasta"
+                FICHIER = "sequence.fasta"
             data = openFasta(FICHIER)
             data_inv_comp = comp_reverse(data)
-            fichier_setup=True
-    print("Que voulez vous faire avec ces fichiers ?\n       Tapez 'AFFICHAGE' pour afficher la liste des orfs de votre fichier.\n       Tapez 'LONGEST' pour afficher les orfs les plus longs pour chaque cadre de lecture.\n       Tapez 'LONG' pour afficher une portion des orfs les plus longs.\n       Tapez 'WRITE' pour enregistrer vos résultats dans un fichier.\n       Tapez 'FIND ORF' pour trouver les orfs de votre séquence.\n       Tapez 'EXIT' pour quitter le programme !")
+            fichier_setup = True
+    print("Que voulez vous faire avec ces fichiers ?\n           Tapez 'AFFICHAGE' pour afficher la liste des orfs de votre fichier.\n           Tapez 'LONGEST' pour afficher les orfs les plus longs pour chaque cadre de lecture.\n           Tapez 'LONG' pour afficher une portion des orfs les plus longs.\n           Tapez 'WRITE' pour enregistrer vos résultats dans un fichier.\n           Tapez 'FIND ORF' pour trouver les orfs de votre séquence.\n           Tapez 'EXIT' pour quitter le programme !")
     choix2=str(input())
-    if choix2=='AFFICHAGE':
-        if dico_setup==True :
+    if choix2 == 'AFFICHAGE':
+        if dico_setup == True :
             print("Pour la séquence Forward : \n")
             getLengths(dicoForward,0)
             print("Pour la séquence Backward : \n")
             getLengths(dicoBackward,0)
-        elif fichier_setup==True :
+        elif fichier_setup == True :
             print("Vous devez d'abord trouver les ORFs de votre fichier !")
-            choix2='FIND ORF'
-    elif choix2=='LONGEST':
-        if dico_setup==True :
+            choix2 = 'FIND ORF'
+    elif choix2 == 'LONGEST':
+        if dico_setup == True :
             print("Voici la liste des ORFs les plus longs pour chaque cadre de lecture :")
             print("       Sens Forward")
             getLongestORF(dicoForward)
             print("       Sens Backward")
             getLongestORF(dicoBackward)
-        elif fichier_setup==True :
+        elif fichier_setup == True :
             print("Vous devez d'abord trouver les ORFs de votre fichier !")
-            choix2='FIND ORF'
-    elif choix2=='LONG':
-        if dico_setup==True :
+            choix2 = 'FIND ORF'
+    elif choix2 == 'LONG':
+        if dico_setup == True :
             print("Quelle proportion des ORFs les plus longs souhaitez-vous (en %)? (De base 50%)")
             try :
-                pourcent=int(input())
+                pourcent = int(input())
             except :
-                pourcent=50
+                pourcent = 50
             print("Les ",pourcent,"% ORF les plus grands")
             print("Pour la séquence Forward : \n")
             getTopLongestORF(dicoForward,pourcent)
             print("Pour la séquence Backward : \n")
             getTopLongestORF(dicoBackward,pourcent)
-        elif fichier_setup==True:
+        elif fichier_setup == True:
             print("Vous devez d'abord trouver les ORFs de votre fichier !")
             choix2='FIND ORF'
-    elif choix2=='WRITE':
-        if dico_setup==True :
+    elif choix2 == 'WRITE':
+        if dico_setup == True :
             print("Quel est le nom du fichier sur lequel vous souhaitez enregistrer les données ?")
             try :
-                FICHIER2=str(input())
+                FICHIER2 = str(input())
             except :
-                FICHIER2="truc2.csv"
+                FICHIER2 = "truc2.csv"
             if ".csv" in FICHIER2 :
-                FICHIER2=FICHIER2[0:-4]
-            FICHIER2=FICHIER2+"_forward.csv"
-            FICHIER3=FICHIER2[0:-12]+"_backward.csv"
+                FICHIER2 = FICHIER2[0:-4]
+            FICHIER2 = FICHIER2+"_forward.csv"
+            FICHIER3 = FICHIER2[0:-12]+"_backward.csv"
             print("Les fichiers seront : ", FICHIER2," et ", FICHIER3)
             writeCSV(dicoForward,FICHIER2,",")
             writeCSV(dicoBackward,FICHIER3,",")
-        elif fichier_setup==True :
+        elif fichier_setup == True :
             print("Vous devez d'abord trouver les ORFs de votre fichier !")
-            choix2='FIND ORF'
-    if choix2=='FIND ORF':
-        if dico_setup==True :
+            choix2 = 'FIND ORF'
+    if choix2 == 'FIND ORF':
+        if dico_setup == True :
             print("Voulez vous changer de fichier à étudier ? (o/n)")
             while True :
                 try :
-                    choix3=str(input())
-                    if choix3=="o" or choix3=="n" :
+                    choix3 = str(input())
+                    if choix3 == "o" or choix3 == "n" :
                         break
                 except :
                     break
-            if choix3=="o":
-                choix1=""
+            if choix3 == "o":
+                choix1 = ""
         else :
             try:
                 threshold = int(input("Quelle valeur de threshold voulez-vous ? Entrez un nombre et appuyez sur ENTREE pour valider votre choix. La valeur par défaut est de 90pb : "))
@@ -480,16 +479,16 @@ def menu(choix1,dico_setup,fichier_setup,dicoForward,dicoBackward):
 
 if __name__=='__main__':
     dico_table = table_genetic()
-    choix1=''
-    dico_setup=False
-    fichier_setup=False
-    go=True
-    dicORF={}
-    dicORF_inv_comp={}
+    choix1 = ''
+    dico_setup = False
+    fichier_setup = False
+    go = True
+    dicORF = {}
+    dicORF_inv_comp = {}
     #On récupère un seuil pour la taille minimale des gènes
-    while go==True :
-        go,choix1,dico_setup,fichier_setup,dicORF,dicORF_inv_comp=menu(choix1,dico_setup,fichier_setup,dicORF,dicORF_inv_comp)
-    #On ouvre le fichier contenant le gène d'intérêt
+    while go == True :
+        go,choix1,dico_setup,fichier_setup,dicORF,dicORF_inv_comp = menu(choix1,dico_setup,fichier_setup,dicORF,dicORF_inv_comp)
+    ## On ouvre le fichier contenant le gène d'intérêt
     # data = openFasta("sequence.fasta")
     # writeFasta(trad(data,0),"fasta_prot.txt")
     # writeFasta(trad(data,1),"fasta_prot1.txt")
@@ -501,14 +500,14 @@ if __name__=='__main__':
     # writeFasta(data_inv_comp,"fasta_inv_comp.txt")
     # writeFasta(data_inv,"fasta_inv.txt")
     # writeFasta(data_comp,"fasta_comp.txt")
-    #dicoForward = isGene3(data,"Forward",threshold,fourchette,fork_basse,fork_haute)
+    # dicoForward = isGene3(data,"Forward",threshold,fourchette,fork_basse,fork_haute)
     # print("---- Données sur le brin principal ----")
     # print(getLengths(dicoForward))
     # print(getLongestORF(dicoForward)) #A REVOIR
     # print(getTopLongestORF(dicoForward,50))
-    #writeCSV(dicoForward,"ORFsearch.csv",";")
+    # writeCSV(dicoForward,"ORFsearch.csv",";")
     # dicoBackward = isGene3(data_inv_comp,"Complémenaire Inverse",threshold,fourchette,fork_basse,fork_haute)
     # print("---- Données en complémentaire inverse ----")
-    # # print(getLengths(dicoBackward))
+    # print(getLengths(dicoBackward))
     # print(getLongestORF(dicoBackward))
     # print(readCSV("prout.csv",";"))
