@@ -87,7 +87,6 @@ def writeCSV(dictionary,filename,separator):
         for orf in dictionary[cadre].keys():
             id, start, stop = orf, dictionary[cadre][orf]['Start'], dictionary[cadre][orf]['Stop']
             listeCSV.append(str(cadre)+separator+str(id)+separator+str(start)+separator+str(stop)+"\n")
-            print (str(cadre)+separator+str(id)+separator+str(start)+separator+str(stop)+"\n")
     fic = open(filename,"w")
     for ligne in range(len(listeCSV)):
         fic.write(listeCSV[ligne])
@@ -120,6 +119,8 @@ def readCSV(filename,separator):
     return dicocsv
 
 def fasta_csv_link(dicORF,seq):
+    '''
+    '''
     for cadre in dicORF.keys():
         for gene in dicORF[cadre]:
             seq_nucleot=seq[dicORF[cadre][gene]['Start']:dicORF[cadre][gene]['Stop']]
@@ -453,28 +454,12 @@ def menu(choix1,dico_setup,fichier_setup,dicoForward,dicoBackward):
                 fourchette = False
                 fork_basse = None
                 fork_haute = None
-            print(data)
-            print(data_inv_comp)
             dicoForward = isGene3(data,"Forward",threshold,fourchette,fork_basse,fork_haute,dicoForward)
             dicoBackward = isGene3(data_inv_comp,"Backward",threshold,fourchette,fork_basse,fork_haute,dicoBackward)
-            # print(dicoForward)
-            # print(dicoBackward)
             dico_setup=True
     elif choix2=='EXIT':
-        return False,choix1,dico_setup,fichier_setup
+        return False,choix1,dico_setup,fichier_setup,dicoForward,dicoBackward
     return True,choix1,dico_setup,fichier_setup,dicoForward,dicoBackward
-
-
-######### WARNING ###########
-#getGeneticCode(NCBI_ID) pour les biais de codon entre les espèces
-#findORF(seq, threshold,codeTable) = isGene3 mais prend en compte les biais de Codon
-
-
-#Ce serait bien de save les séquences inv, comp et comp inv dans un fasta ? DONE
-# -> Ajout des codons init' alternatifs
-# -> Suppression d'un codon stop (non présent dans le biais de codon)
-# -> Ajout Threshold (minimum length : 90pb) "various thresholds (No threshold, 90bp, 210bp, 300bp, 420bp, for example.)"
-#############################
 
 if __name__=='__main__':
     dico_table = table_genetic()
