@@ -345,7 +345,7 @@ def isGene3(seq,version,threshold,fourchette,fork_basse,fork_haute,dicORF):
         fichierGene=""
         for i in listeGenes:
             fichierGene+=i+"\n"
-        writeFasta(fichierGene,"cadre"+str(k)+".txt")
+        writeFasta(fichierGene,version+"_cadre"+str(k)+".txt")
     return dicORF
 
 def menu():
