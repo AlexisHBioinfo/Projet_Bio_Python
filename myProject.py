@@ -72,7 +72,14 @@ def writeFasta(data,FICHIER):
 
 def writeCSV(dictionary,filename,separator):
     '''
-    A FINIR
+    Cette fonction enregistre certaines informations sur les ORFs contenues dans le 'dictionary' dans un fichier csv
+
+            argument:
+                    dictionary:le dictionnaire dont vous voulez enregistrer des données
+                    filename: le nom du fichier .csv dans lequel les informations seront enregistrées
+                    separator: le type de séparator utilisé pour créé votre fichier .csv (par défaut ",")
+            return:
+                    Rien
     '''
     listeCSV=[]
     listeCSV.append("'cadre'"+separator+"'id'"+separator+"'start'"+separator+"'stop'"+"\n")
@@ -88,7 +95,13 @@ def writeCSV(dictionary,filename,separator):
 
 def readCSV(filename,separator):
     '''
-    A FINIR
+    Cette fonction lit les informations contenues dans un fichier csv et les place dans un dictionnaire.
+
+            argument:
+                    filename: le nom du fichier .csv dans lequel les informations seront enregistrées
+                    separator: le type de séparator utilisé pour créé votre fichier .csv (par défaut ",")
+            return:
+                    Le dictionnaire contenant les informations nouvellement récupérées.
     '''
     csvliste=[]
     dicocsv={}
@@ -105,6 +118,15 @@ def readCSV(filename,separator):
             taille=int(orftmp[3])-int(orftmp[2])
             dicocsv[int(orftmp[0])][int(orftmp[1])]={'Start':int(orftmp[2]),'Stop':int(orftmp[3]),'Taille (pb)':taille,'Seq_Nucleo':'NON RENSEIGNEE','Seq_proteo':'NON RENSEIGNEE'}
     return dicocsv
+
+def fasta_csv_link(dicORF,seq):
+    for cadre in dicORF.keys():
+        for gene in dicORF[cadre]:
+            seq_nucleot=seq[dicORF[cadre][gene]['Start']:dicORF[cadre][gene]['Stop']]
+            dicORF[cadre][gene]['Seq_Nucleo']=seq_nucleot
+            dicORF[cadre][gene]['Seq_proteo']=trad(seq_nucleot,0)
+            print (dicORF[cadre][gene])
+    return dicORF
 
 def comp_reverse(seq):
     '''
@@ -335,6 +357,19 @@ def menu(choix1,dico_setup,fichier_setup,dicoForward,dicoBackward):
             dicoForward=readCSV(FICHIER,",")
             fichier_setup=True
             dico_setup=True
+            print("Voulez vous ajouter un fichier fasta lié à votre fichier csv ? (o/n)")
+            choix4=str(input())
+            if choix4=="o":
+                print("Quel fichier voulez-vous lire ?")
+                try :
+                    FICHIER=str(input())
+                except ValueError :
+                    FICHIER="sequence.fasta"
+                data = openFasta(FICHIER)
+                data_inv_comp = comp_reverse(data)
+                fichier_setup=True
+                dicoForward=fasta_csv_link(dicoForward,data)
+                # dicoBackward=fasta_csv_link(dicoBackward,data_inv_comp)
         elif choix1=="FASTA":
             print("Quel fichier voulez-vous lire ?")
             try :
