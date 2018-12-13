@@ -377,8 +377,10 @@ def menu():
                     FICHIER = str(input())
                 except :
                     FICHIER = "truc2.csv"
-                if ".csv" in FICHIER :
-                    FICHIER = FICHIER[0:-4]
+                if "_backward.csv" in FICHIER:
+                    FICHIER=FICHIER[0:-13]
+                if "_forward.csv" in FICHIER :
+                    FICHIER=FICHIER[0:-12]
                 FICHIER=FICHIER+"_forward.csv"
                 FICHIER1=FICHIER[0:-12]+"_backward.csv"
                 dicoForward = readCSV(FICHIER,",")
